@@ -1,0 +1,15 @@
+.login-form-wrapper {
+    max-width: 300px;
+    margin: 50px auto;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
+  
+  .login-form {
+    max-width: 300px;
+  }
+  
+  .login-form-button {
+    width: 100%;
+  }
