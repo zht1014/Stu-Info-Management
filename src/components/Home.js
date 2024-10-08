@@ -13,6 +13,9 @@ import {
   FileOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, theme, Breadcrumb } from 'antd';
+import { AuthContext } from '../AuthContext';
+import ViewExam from './exam/ViewExam';
+
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -28,7 +31,7 @@ function getItem(label, key, icon, component, children) {
 
 const items = [
   getItem('Option 1', '1', <PieChartOutlined />, () => <h1>Component 1</h1>),
-  getItem('Option 2', '2', <DesktopOutlined />, () => <h1>Component 2</h1>),
+  getItem('Option 2', '2', <DesktopOutlined />, () => <ViewExam/>), 
   getItem('User', 'sub1', <UserOutlined />, null, [
     getItem('Tom', '3', null, () => <h1>Component sub1-1</h1>),
     getItem('Bill', '4', null, () => <h1>Component sub1-2</h1>),
@@ -68,6 +71,7 @@ const findNavItem = (items, key) => {
 
 const NavContent = () => {
   const { selectedNav } = useContext(NavContext);
+  
 
   // 使用递归查找选中的导航项
   const selectedNavObj = findNavItem(items, selectedNav);
@@ -76,6 +80,10 @@ const NavContent = () => {
 };
 
 const Home = () => {
+
+  const { role } = useContext(AuthContext);
+
+  console.log(role)
 
   const [collapsed, setCollapsed] = useState(false);
 
