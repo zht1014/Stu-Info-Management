@@ -15,6 +15,7 @@ import {
 import { Layout, Menu, theme, Breadcrumb } from 'antd';
 import { AuthContext } from '../AuthContext';
 import ViewExam from './exam/ViewExam';
+import ViewCourse from './course/ViewCourse';
 
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -30,7 +31,7 @@ function getItem(label, key, icon, component, children) {
 }
 
 const items = [
-  getItem('Option 1', '1', <PieChartOutlined />, () => <h1>Component 1</h1>),
+  getItem('Option 1', '1', <PieChartOutlined />, () => <ViewCourse/>),
   getItem('Option 2', '2', <DesktopOutlined />, () => <ViewExam/>), 
   getItem('User', 'sub1', <UserOutlined />, null, [
     getItem('Tom', '3', null, () => <h1>Component sub1-1</h1>),
