@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   AppstoreOutlined,
   BarChartOutlined,
@@ -12,45 +12,63 @@ import {
   DesktopOutlined,
   FileOutlined,
 } from '@ant-design/icons';
-import { Layout, Menu, theme, Breadcrumb } from 'antd';
+import { Layout, Menu, theme, Breadcrumb, Avatar, Popover, Button } from 'antd';
 import { AuthContext } from '../AuthContext';
 import ViewExam from './exam/ViewExam';
-
+import EditExam from './exam/EditExam';
 
 const { Header, Content, Footer, Sider } = Layout;
-
-function getItem(label, key, icon, component, children) {
-  return {
-    key,
-    icon,
-    children,
-    label,
-    component,
-  };
-}
-
-const items = [
-  getItem('Option 1', '1', <PieChartOutlined />, () => <h1>Component 1</h1>),
-  getItem('Option 2', '2', <DesktopOutlined />, () => <ViewExam/>), 
-  getItem('User', 'sub1', <UserOutlined />, null, [
-    getItem('Tom', '3', null, () => <h1>Component sub1-1</h1>),
-    getItem('Bill', '4', null, () => <h1>Component sub1-2</h1>),
-    getItem('Alex', '5', null, () => <h1>Component sub1-3</h1>),
-  ]),
-  getItem('Team', 'sub2', <TeamOutlined />, null, [
-    getItem('Team 1', '6', null, () => <h1>sub2-1</h1>),
-    getItem('Team 2', '8', null, () => <h1>sub2-2</h1>),
-  ]),
-  getItem('Files', '9', <FileOutlined />, () => <h1>Component 3</h1>),
-];
 
 const NavContext = createContext();
 
 const NavProvider = ({ children }) => {
   const [selectedNav, setSelectedNav] = useState('1');
+  const { role } = useContext(AuthContext);
+  const [items, setItems] = useState([
+    { key: '1', icon: <PieChartOutlined />, label: 'Option 1', component: () => <EditExam /> },
+    { key: '2', icon: <DesktopOutlined />, label: 'Option 2', component: () => <ViewExam /> },
+    {
+      key: 'sub1', icon: <UserOutlined />, label: 'User', children: [
+        { key: '3', label: 'Tom', component: () => <h1>Component sub1-1</h1> },
+        { key: '4', label: 'Bill', component: () => <h1>Component sub1-2</h1> },
+        { key: '5', label: 'Alex', component: () => <h1>Component sub1-3</h1> },
+      ]
+    },
+    {
+      key: 'sub2', icon: <TeamOutlined />, label: 'Team', children: [
+        { key: '6', label: 'Team 1', component: () => <h1>sub2-1</h1> },
+        { key: '8', label: 'Team 2', component: () => <h1>sub2-2</h1> },
+      ]
+    },
+    { key: '9', icon: <FileOutlined />, label: 'Files', component: () => <h1>Component 3</h1> },
+  ]);
+
+  useEffect(() => {
+    if (role === 'staff') {
+      setItems([
+        { key: '1', icon: <PieChartOutlined />, label: 'Option 1', component: () => <EditExam /> },
+        { key: '2', icon: <DesktopOutlined />, label: 'Option 2', component: () => <ViewExam /> },
+        {
+          key: 'sub1', icon: <UserOutlined />, label: 'User', children: [
+            { key: '3', label: 'Tom', component: () => <h1>Component sub1-1</h1> },
+            { key: '4', label: 'Bill', component: () => <h1>Component sub1-2</h1> },
+            { key: '5', label: 'Alex', component: () => <h1>Component sub1-3</h1> },
+          ]
+        },
+        {
+          key: 'sub2', icon: <TeamOutlined />, label: 'Team', children: [
+            { key: '6', label: 'Team 1', component: () => <h1>sub2-1</h1> },
+            { key: '8', label: 'Team 2', component: () => <h1>sub2-2</h1> },
+          ]
+        },
+        { key: '9', icon: <FileOutlined />, label: 'Files', component: () => <h1>Component 5</h1> },
+      ]);
+    }
+  }, [role]);
+
 
   return (
-    <NavContext.Provider value={{ selectedNav, setSelectedNav }}>
+    <NavContext.Provider value={{ selectedNav, setSelectedNav, items, setItems }}>
       {children}
     </NavContext.Provider>
   );
@@ -59,32 +77,31 @@ const NavProvider = ({ children }) => {
 const findNavItem = (items, key) => {
   for (const item of items) {
     if (item.key === key) {
-      return item; 
+      console.log(1)
+      return item;
     }
     if (item.children) {
       const found = findNavItem(item.children, key);
-      if (found) return found; 
+      if (found) return found;
     }
   }
-  return null; 
+  return null;
 };
 
 const NavContent = () => {
-  const { selectedNav } = useContext(NavContext);
-  
+  const { selectedNav, items } = useContext(NavContext);
 
-  // 使用递归查找选中的导航项
   const selectedNavObj = findNavItem(items, selectedNav);
 
   return selectedNavObj ? selectedNavObj.component() : <div>No Component Found</div>;
 };
 
 const Home = () => {
+  const [open, setOpen] = useState(false);
+  const hide = () => setOpen(false);
+  const handleOpenChange = (newOpen) => setOpen(newOpen);
 
   const { role } = useContext(AuthContext);
-
-  console.log(role)
-
   const [collapsed, setCollapsed] = useState(false);
 
   const {
@@ -94,39 +111,52 @@ const Home = () => {
   return (
     <NavProvider>
       <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-        <div className="demo-logo-vertical" />
-        <NavMenu />
-      </Sider>
-      <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }} />
-        <Content style={{ margin: '0 16px' }}>
-          <Breadcrumb style={{ margin: '16px 0' }}>
-            <Breadcrumb.Item>User</Breadcrumb.Item>
-            <Breadcrumb.Item>Bill</Breadcrumb.Item>
-          </Breadcrumb>
-          <div
-            style={{
-              padding: 24,
-              minHeight: 360,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            <NavContent/>
-          </div>
-        </Content>
-        <Footer style={{ textAlign: 'center' }}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer>
+        <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
+          <div className="demo-logo-vertical" />
+          <NavMenu />
+        </Sider>
+        <Layout>
+          <Header style={{ padding: 5, background: colorBgContainer, display: 'flex', justifyContent: 'flex-end', paddingRight: 100 }}>
+            <div style={{ padding: 5, paddingRight: 10 }}>
+              <Popover
+                content={<div style={{ padding: 5, paddingRight: 10 }}>
+                  <a onClick={hide}>Close</a>
+                </div>}
+                title="Title"
+                trigger="click"
+                open={open}
+                onOpenChange={handleOpenChange}
+                overlayStyle={{ border: 'none' }}
+              >
+                <Avatar style={{ verticalAlign: 'middle' }} size="large">
+                  {role}
+                </Avatar>
+              </Popover>
+            </div>
+          </Header>
+          <Content style={{ margin: '0 16px' }}>
+            <div
+              style={{
+                padding: 24,
+                minHeight: 360,
+                background: colorBgContainer,
+                borderRadius: borderRadiusLG,
+              }}
+            >
+              <NavContent />
+            </div>
+          </Content>
+          <Footer style={{ textAlign: 'center' }}>
+            Ant Design ©{new Date().getFullYear()} Created by Ant UED
+          </Footer>
+        </Layout>
       </Layout>
-    </Layout>
     </NavProvider>
   );
 };
 
 const NavMenu = () => {
-  const { selectedNav, setSelectedNav } = useContext(NavContext);
+  const { selectedNav, setSelectedNav, items } = useContext(NavContext);
 
   const handleClick = ({ key }) => {
     setSelectedNav(key);
@@ -134,11 +164,6 @@ const NavMenu = () => {
 
   return (
     <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} onClick={handleClick} items={items}>
-      {/* {items.map((item) => (
-        <Menu.Item key={item.key} icon={item.icon}>
-          {item.label}
-        </Menu.Item>
-      ))} */}
     </Menu>
   );
 };
