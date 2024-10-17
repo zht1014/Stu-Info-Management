@@ -4,6 +4,7 @@ const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
     const [role, setRole] = useState('');
+    
 
     return (
         <AuthContext.Provider value={{ role, setRole }}>

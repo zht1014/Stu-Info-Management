@@ -16,6 +16,7 @@ import { Layout, Menu, theme, Breadcrumb, Avatar, Popover, Button } from 'antd';
 import { AuthContext } from '../AuthContext';
 import ViewExam from './exam/ViewExam';
 import EditExam from './exam/EditExam';
+import ViewCourse from './course/ViewCourse';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -25,10 +26,10 @@ const NavProvider = ({ children }) => {
   const [selectedNav, setSelectedNav] = useState('1');
   const { role } = useContext(AuthContext);
   const [items, setItems] = useState([
-    { key: '1', icon: <PieChartOutlined />, label: 'Option 1', component: () => <EditExam /> },
+    { key: '1', icon: <PieChartOutlined />, label: 'Option 1', component: () => <ViewCourse /> },
     { key: '2', icon: <DesktopOutlined />, label: 'Option 2', component: () => <ViewExam /> },
     {
-      key: 'sub1', icon: <UserOutlined />, label: 'User', children: [
+      key: 'sub1', icon: <UserOutlined />, label: 'exam', children: [
         { key: '3', label: 'Tom', component: () => <h1>Component sub1-1</h1> },
         { key: '4', label: 'Bill', component: () => <h1>Component sub1-2</h1> },
         { key: '5', label: 'Alex', component: () => <h1>Component sub1-3</h1> },
@@ -49,20 +50,33 @@ const NavProvider = ({ children }) => {
         { key: '1', icon: <PieChartOutlined />, label: 'Option 1', component: () => <EditExam /> },
         { key: '2', icon: <DesktopOutlined />, label: 'Option 2', component: () => <ViewExam /> },
         {
-          key: 'sub1', icon: <UserOutlined />, label: 'User', children: [
-            { key: '3', label: 'Tom', component: () => <h1>Component sub1-1</h1> },
-            { key: '4', label: 'Bill', component: () => <h1>Component sub1-2</h1> },
-            { key: '5', label: 'Alex', component: () => <h1>Component sub1-3</h1> },
+          key: 'sub1', icon: <UserOutlined />, label: 'exam', children: [
+            { key: '3', label: 'Edit', component: () => <EditExam /> },
+            { key: '4', label: 'View', component: () => <ViewExam /> },
           ]
         },
+        {
+          key: 'sub2', icon: <TeamOutlined />, label: 'course', children: [
+            { key: '6', label: 'View Course', component: () => <ViewCourse />  },
+            { key: '8', label: 'Edit course', component: () => <h1>sub2-2</h1> },
+            { key: '8', label: 'Add Course', component: () => <h1>sub2-2</h1> },
+          ]
+        },
+        { key: '9', icon: <FileOutlined />, label: 'Files', component: () => <h1>Component 3</h1> },
+      ]);
+    }
+    if(role === 'student'){
+      setItems([
+        { key: '1', icon: <PieChartOutlined />, label: 'View Exams', component: () => <EditExam /> },
+        { key: '2', icon: <DesktopOutlined />, label: 'View courses', component: () => <ViewCourse /> },
         {
           key: 'sub2', icon: <TeamOutlined />, label: 'Team', children: [
             { key: '6', label: 'Team 1', component: () => <h1>sub2-1</h1> },
             { key: '8', label: 'Team 2', component: () => <h1>sub2-2</h1> },
           ]
         },
-        { key: '9', icon: <FileOutlined />, label: 'Files', component: () => <h1>Component 5</h1> },
-      ]);
+        { key: '9', icon: <FileOutlined />, label: 'Files', component: () => <h1>Component 3</h1> },
+      ])
     }
   }, [role]);
 
