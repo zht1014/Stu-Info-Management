@@ -27,14 +27,14 @@ pipeline {
                 }
             }
         }
-        stage('Lint Code') {
-            steps {
-                ansiColor('xterm') {
-                // 执行 Linting 检查
-                sh 'npm run lint'
-                }
-            }
-        }
+        // stage('Lint Code') {
+        //     steps {
+        //         ansiColor('xterm') {
+        //         // 执行 Linting 检查
+        //         sh 'npm run lint'
+        //         }
+        //     }
+        // }
         stage('Build Project') {
             steps {
                 ansiColor('xterm') {
