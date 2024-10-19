@@ -9,6 +9,7 @@ pipeline {
         TARGET_DIR = '/opt/module/react-app'               // 服务器上的目标目录
         BUILD_DIR = 'build'                         // React 项目打包后的目录
         PORT = '5000'                               // 服务器上运行的端口
+        CI = 'false' // 设置 CI 环境变量为 false，避免 React 项目在构建时提示 CI 环境
     }
 
     stages {
