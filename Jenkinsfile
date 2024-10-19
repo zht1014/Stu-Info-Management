@@ -4,8 +4,8 @@ pipeline {
     environment {
         // 定义环境变量
         SERVER_IP = '128.199.224.162'
-        SERVER_NAME = 'do001-why-ubuntu'        		// 服务器IP地址
-        SERVER_USER = 'root'    					// 服务器用户名
+        SERVER_NAME = 'do001-why-ubuntu'                // 服务器IP地址
+        SERVER_USER = 'root'                        // 服务器用户名
         TARGET_DIR = '/opt/module/react-app'               // 服务器上的目标目录
         BUILD_DIR = 'build'                         // React 项目打包后的目录
         PORT = '5000'                               // 服务器上运行的端口
@@ -24,6 +24,14 @@ pipeline {
                 ansiColor('xterm') {
                     // 安装项目依赖
                     sh 'npm install'
+                }
+            }
+        }
+        stage('Lint Code') {
+            steps {
+                ansiColor('xterm') {
+                // 执行 Linting 检查
+                sh 'npm run lint'
                 }
             }
         }
