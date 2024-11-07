@@ -1,24 +1,55 @@
+// src/Login.js
 import React, { useContext, createContext, useState } from 'react';
 import axios from 'axios';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import './Login.css';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../AuthContext';
 
 const Login = () => {
-    const { setRole } = useContext(AuthContext);
+    const { setRole, setJwt } = useContext(AuthContext);
     const [form] = Form.useForm();
     const navigate = useNavigate();
 
     const handleLogin = async (values) => {
-        /* 这里后期加入判断用户角色的逻辑，如果判断出用户不属于任何角色，即为登录失败 */
-        navigate('/home');
-        
+        try {
+            const response = await axios.post('http://localhost:8080/login', {
+                username: values.adminId, // 用于用户名的字段
+                password: values.password,
+            });
+
+            if (response.data.success) {
+                // 获取 JWT token
+                const token = response.data.data;
+                
+                // 将 token 存储到 localStorage
+                //localStorage.setItem('jwtToken', token);
+                setJwt(token)
+                // 可选：如果需要角色信息，可以解析 JWT 获取角色信息
+                // 这里假设 setRole 是设置角色的函数
+                const userRole = 'staff';
+                setRole(userRole);
+
+                message.success('Login successful!');
+                navigate('/home'); // 跳转到主页或其他页面
+            } else {
+                message.error('Login failed. Please check your credentials.');
+            }
+        } catch (error) {
+            message.error('Login failed. Please try again later.');
+        }
+
+
+
+
+        /* const userRole = 'staff'
+        setRole(userRole) */
+        //navigate('/home');
     };
 
     return (
-            <div className="login-form-wrapper">
+        <div className="login-form-wrapper">
             <Form
                 form={form}
                 name="login_form"
@@ -29,7 +60,7 @@ const Login = () => {
                     name="adminId"
                     rules={[{ required: true, message: 'Please enter your admin ID!' }]}
                 >
-                    <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Admin ID" onChange={(e)=>{/* 这里set的也应该不是输入的名字，而是登录后返回的userRole */setRole(e.target.value)}}/>
+                    <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Admin ID" />
                 </Form.Item>
                 <Form.Item
                     name="password"
@@ -48,7 +79,6 @@ const Login = () => {
                 </Form.Item>
             </Form>
         </div>
-        
     );
 };
 
