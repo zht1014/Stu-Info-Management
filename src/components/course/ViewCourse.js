@@ -1,23 +1,56 @@
-import React, { useState } from "react";
-import { Table, Input, DatePicker, Select, Button, Modal, notification } from "antd";
-import coursesData from "../../data/courseData"; // 假设这是你的模拟数据路径
+import React, { useState, useContext, useEffect } from "react";
+import {
+  Table,
+  Input,
+  DatePicker,
+  Select,
+  Button,
+  Modal,
+  notification,
+} from "antd";
+// import coursesData from "../../data/courseData"; // 假设这是你的模拟数据路径
+import { AuthContext } from "../../AuthContext";
+import axios from 'axios'
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const ViewCourse = () => {
+  const { jwt } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchText, setSearchText] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState(undefined);
-  const [selectedFaculty, setSelectedFaculty] = useState(undefined);
+  const [selectedTeacher, setSelectedTeacher] = useState(undefined); // 这里修改为选中教师
   const [dates, setDates] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState(undefined);
-  const [courses, setCourses] = useState(coursesData); // 使用状态来保存课程数据
-
+  const [courses, setCourses] = useState([]); // 使用状态来保存课程数据
+  
   // 获取唯一的院系和教师列表
   const departments = [...new Set(courses.map((course) => course.department))];
-  const faculties = [...new Set(courses.map((course) => course.faculty))];
+  const teachers = [...new Set(courses.map((course) => course.teacherName))]; // 这里修改为教师名称
+
+  // page load
+  useEffect(() => {
+    console.log("Component has been loaded");
+    getCourseData();
+  }, []); // 空数组依赖确保只在页面加载时执行一次
+
+  const getCourseData = async () => {
+    try {
+      const url = "http://localhost:8080/api/course";
+      const { data } = await axios.get(url,{
+        headers: {
+          authToken: jwt, // 添加 JWT token
+        },
+        withCredentials: true
+      });
+      console.log(data)
+      setCourses(data.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   // 处理选课
   const handleSelectCourse = (course) => {
@@ -31,7 +64,7 @@ const ViewCourse = () => {
             c.key === course.key ? { ...c, selected: true } : c
           )
         );
-        
+
         // 通知选课成功
         notification.success({
           message: "Course Selected",
@@ -65,14 +98,9 @@ const ViewCourse = () => {
       key: "endDate",
     },
     {
-      title: "Faculty",
-      dataIndex: "faculty",
-      key: "faculty",
-    },
-    {
-      title: "Credits",
-      dataIndex: "credits",
-      key: "credits",
+      title: "Teacher", // 修改为 Teacher
+      dataIndex: "teacherName", // 修改为 teacherName
+      key: "teacherName", // 修改为 teacherName
     },
     {
       title: "Department",
@@ -86,11 +114,11 @@ const ViewCourse = () => {
     const isInDepartment = selectedDepartment
       ? course.department === selectedDepartment
       : true;
-    const isInFaculty = selectedFaculty
-      ? course.faculty === selectedFaculty
+    const isInTeacher = selectedTeacher
+      ? course.teacherName === selectedTeacher // 修改为 teacherName
       : true;
     const isInDateRange =
-      dates.length === 2
+    dates && dates.length === 2
         ? new Date(course.startDate) >= dates[0] &&
           new Date(course.endDate) <= dates[1]
         : true;
@@ -105,7 +133,7 @@ const ViewCourse = () => {
         : true;
 
     return (
-      isInDepartment && isInFaculty && isInDateRange && isMatched && isSelected
+      isInDepartment && isInTeacher && isInDateRange && isMatched && isSelected // 修改过滤条件
     );
   });
 
@@ -156,17 +184,17 @@ const ViewCourse = () => {
           ))}
         </Select>
         <Select
-          placeholder="Select Faculty"
-          value={selectedFaculty}
+          placeholder="Select Teacher" // 修改为 Select Teacher
+          value={selectedTeacher} // 修改为 selectedTeacher
           onChange={(value) =>
-            setSelectedFaculty(value === "ALL" ? undefined : value)
+            setSelectedTeacher(value === "ALL" ? undefined : value) // 修改为 selectedTeacher
           }
           style={{ width: 200, marginRight: 16 }}
         >
           <Option value="ALL">All</Option>
-          {faculties.map((faculty) => (
-            <Option key={faculty} value={faculty}>
-              {faculty}
+          {teachers.map((teacher) => (
+            <Option key={teacher} value={teacher}>
+              {teacher}
             </Option>
           ))}
         </Select>
@@ -180,7 +208,7 @@ const ViewCourse = () => {
           onClick={() => {
             setSearchText("");
             setSelectedDepartment(undefined); // 重置为占位符
-            setSelectedFaculty(undefined); // 重置为占位符
+            setSelectedTeacher(undefined); // 重置为占位符
             setDates([]); // 重置日期为默认状态
             setSelectedStatus(undefined); // 重置选课状态为占位符
           }}
