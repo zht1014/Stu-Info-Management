@@ -8,7 +8,6 @@ import {
   Modal,
   notification,
 } from "antd";
-// import coursesData from "../../data/courseData"; // 假设这是你的模拟数据路径
 import { AuthContext } from "../../AuthContext";
 import axios from 'axios'
 
@@ -98,9 +97,9 @@ const ViewCourse = () => {
       key: "endDate",
     },
     {
-      title: "Teacher", // 修改为 Teacher
-      dataIndex: "teacherName", // 修改为 teacherName
-      key: "teacherName", // 修改为 teacherName
+      title: "Teacher", 
+      dataIndex: "teacherName", 
+      key: "teacherName",
     },
     {
       title: "Department",
