@@ -9,74 +9,166 @@ import {
   notification,
 } from "antd";
 import { AuthContext } from "../../AuthContext";
-import axios from 'axios'
+import axios from "axios";
 import dayjs from "dayjs";
-
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const ViewCourse = () => {
-  const { jwt } = useContext(AuthContext);
+  const { userId, setUserId } = useState(1);
+  const { role, jwt } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchText, setSearchText] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState(undefined);
-  const [selectedTeacher, setSelectedTeacher] = useState(undefined); // 这里修改为选中教师
+  const [selectedTeacher, setSelectedTeacher] = useState(undefined);
   const [dates, setDates] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState(undefined);
-  const [courses, setCourses] = useState([]); // 使用状态来保存课程数据
-  
-  // 获取唯一的院系和教师列表
+  const [courses, setCourses] = useState([]);
+
   const departments = [...new Set(courses.map((course) => course.department))];
-  const teachers = [...new Set(courses.map((course) => course.teacherName))]; // 这里修改为教师名称
+  const teachers = [...new Set(courses.map((course) => course.teacherName))];
 
-  // page load
   useEffect(() => {
-    console.log("Component has been loaded");
-    getCourseData();
-  }, []); // 空数组依赖确保只在页面加载时执行一次
+    console.log("login role is:", role);
+    console.log("Fetching course data...");
 
-  const getCourseData = async () => {
-    try {
-      const url = "http://localhost:8080/api/course";
-      const { data } = await axios.get(url,{
-        headers: {
-          authToken: jwt, // 添加 JWT token
-        },
-        withCredentials: true
-      });
-      console.log(data)
-      setCourses(data.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  // 处理选课
-  const handleSelectCourse = (course) => {
-    Modal.confirm({
-      title: "Confirm Selection",
-      content: `Are you sure you want to select the course: ${course.courseName}?`,
-      onOk: () => {
-        // 修改课程选择状态
-        setCourses((prevCourses) =>
-          prevCourses.map((c) =>
-            c.key === course.key ? { ...c, selected: true } : c
-          )
-        );
-
-        // 通知选课成功
-        notification.success({
-          message: "Course Selected",
-          description: `You have successfully selected the course: ${course.courseName}`,
-          placement: "topRight",
+    const fetchData = async () => {
+      try {
+        // Fetch course data
+        const courseUrl = "http://localhost:8080/api/course";
+        const { data: courseData } = await axios.get(courseUrl, {
+          headers: {
+            authToken: jwt,
+          },
+          withCredentials: true,
         });
+        console.log("course data is:", courseData.data);
+
+        // Fetch enrollment data
+        const enrollmentUrl = `http://localhost:8080/api/enrollment/user/1`;
+        const { data: enrollmentData } = await axios.get(enrollmentUrl, {
+          headers: {
+            authToken: jwt,
+          },
+          withCredentials: true,
+        });
+        console.log("enrollment data is:", enrollmentData.data);
+
+        // Update course data with selected status
+        setCourses(
+          courseData.data.map((course) => {
+            // Find the corresponding enrollment for this course
+            const enrollment = enrollmentData.data.find(
+              (enrollment) => enrollment.courseId === course.courseId
+            );
+
+            // Check if the course is selected
+            const isSelected = enrollment ? true : false;
+
+            // Return the course with the added enrollmentId
+            return {
+              ...course,
+              selected: isSelected,
+              enrollmentId: enrollment ? enrollment.enrollmentId : null,
+            };
+          })
+        );
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [role]);
+
+  const handleSelectCourse = async (course) => {
+    Modal.confirm({
+      title: course.selected ? "Confirm Unselect" : "Confirm Select",
+      content: `Are you sure you want to ${
+        course.selected ? "unselect" : "select"
+      } the course: ${course.courseName}?`,
+      onOk: async () => {
+        try {
+          if (course.selected) {
+            // Unselect the course
+            await axios.delete(
+              `http://localhost:8080/api/enrollment/${course.enrollmentId}`,
+              {
+                headers: {
+                  authToken: jwt,
+                },
+                withCredentials: true,
+              }
+            );
+
+            // Modify the course selection status to unselected
+            setCourses((prevCourses) =>
+              prevCourses.map((c) =>
+                c.courseId === course.courseId ? { ...c, selected: false } : c
+              )
+            );
+
+            // Notify unselect success
+            notification.success({
+              message: "Course Unselected",
+              description: `You have successfully unselected the course: ${course.courseName}`,
+              placement: "topRight",
+            });
+          } else {
+            // Select the course
+            const { data: enrollmentData } = await axios.post(
+              `http://localhost:8080/api/enrollment`,
+              {
+                studentId: 1, // You can replace this with the actual studentId if needed
+                courseId: course.courseId,
+                enrollmentDate: dayjs().format("YYYY-MM-DDTHH:mm:ss"),
+                status: "ENROLLED",
+                createDatetime: dayjs().format("YYYY-MM-DDTHH:mm:ss"),
+                updateDatetime: dayjs().format("YYYY-MM-DDTHH:mm:ss"),
+              },
+              {
+                headers: {
+                  authToken: jwt,
+                },
+                withCredentials: true,
+              }
+            );
+
+            // Update the course with the new enrollmentId
+            setCourses((prevCourses) =>
+              prevCourses.map((c) =>
+                c.courseId === course.courseId
+                  ? {
+                      ...c,
+                      selected: true,
+                      enrollmentId: enrollmentData.data.enrollmentId,
+                    }
+                  : c
+              )
+            );
+
+            // Notify select success
+            notification.success({
+              message: "Course Selected",
+              description: `You have successfully selected the course: ${course.courseName}`,
+              placement: "topRight",
+            });
+          }
+        } catch (error) {
+          notification.error({
+            message: course.selected ? "Unselect Failed" : "Selection Failed",
+            description: `Failed to ${
+              course.selected ? "unselect" : "select"
+            } the course. Please try again.`,
+            placement: "topRight",
+          });
+        }
       },
     });
   };
 
-  // 定义表格列
   const columns = [
     {
       title: "Course Name",
@@ -101,13 +193,13 @@ const ViewCourse = () => {
       render: (text) => dayjs(text).format("YYYY-MM-DD"),
     },
     {
-      title: "Credits", 
-      dataIndex: "credits", 
+      title: "Credits",
+      dataIndex: "credits",
       key: "credits",
     },
     {
-      title: "Teacher", 
-      dataIndex: "teacherName", 
+      title: "Teacher",
+      dataIndex: "teacherName",
       key: "teacherName",
     },
     {
@@ -115,18 +207,36 @@ const ViewCourse = () => {
       dataIndex: "department",
       key: "department",
     },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, course) => (
+        <Button
+          type="primary"
+          danger={course.selected}
+          onClick={() => handleSelectCourse(course)}
+          disabled={false}
+          style={{
+            backgroundColor: course.selected ? "#f5222d" : "#1890ff",
+            borderColor: course.selected ? "#f5222d" : "#1890ff",
+            color: "#fff",
+          }}
+        >
+          {course.selected ? "Unselect" : "Select"}
+        </Button>
+      ),
+    },
   ];
 
-  // 处理过滤
   const filteredCourses = courses.filter((course) => {
     const isInDepartment = selectedDepartment
       ? course.department === selectedDepartment
       : true;
     const isInTeacher = selectedTeacher
-      ? course.teacherName === selectedTeacher // 修改为 teacherName
+      ? course.teacherName === selectedTeacher
       : true;
     const isInDateRange =
-    dates && dates.length === 2
+      dates && dates.length === 2
         ? new Date(course.startDate) >= dates[0] &&
           new Date(course.endDate) <= dates[1]
         : true;
@@ -141,11 +251,10 @@ const ViewCourse = () => {
         : true;
 
     return (
-      isInDepartment && isInTeacher && isInDateRange && isMatched && isSelected // 修改过滤条件
+      isInDepartment && isInTeacher && isInDateRange && isMatched && isSelected
     );
   });
 
-  // 处理分页逻辑
   const paginationConfig = {
     current: currentPage,
     pageSize: pageSize,
@@ -192,10 +301,10 @@ const ViewCourse = () => {
           ))}
         </Select>
         <Select
-          placeholder="Select Teacher" // 修改为 Select Teacher
-          value={selectedTeacher} // 修改为 selectedTeacher
+          placeholder="Select Teacher"
+          value={selectedTeacher}
           onChange={(value) =>
-            setSelectedTeacher(value === "ALL" ? undefined : value) // 修改为 selectedTeacher
+            setSelectedTeacher(value === "ALL" ? undefined : value)
           }
           style={{ width: 200, marginRight: 16 }}
         >
@@ -208,46 +317,26 @@ const ViewCourse = () => {
         </Select>
         <RangePicker
           value={dates}
-          onChange={(dates) => setDates(dates)}
+          onChange={(value) => setDates(value)}
           style={{ marginRight: 16 }}
         />
         <Button
-          style={{ width: 50, marginRight: 16 }}
           onClick={() => {
+            setSelectedDepartment(undefined);
+            setSelectedTeacher(undefined);
+            setDates([]);
+            setSelectedStatus(undefined);
             setSearchText("");
-            setSelectedDepartment(undefined); // 重置为占位符
-            setSelectedTeacher(undefined); // 重置为占位符
-            setDates([]); // 重置日期为默认状态
-            setSelectedStatus(undefined); // 重置选课状态为占位符
           }}
         >
-          Reset
+          Reset Filters
         </Button>
       </div>
+
       <Table
-        columns={[
-          ...columns,
-          {
-            title: "Action",
-            key: "action",
-            render: (_, course) => (
-              <Button
-                type="primary"
-                danger={course.selected} // 如果课程已经被选中，按钮变为危险样式
-                onClick={() => handleSelectCourse(course)}
-                disabled={course.selected}
-                style={{
-                  backgroundColor: course.selected ? "#f5222d" : "#1890ff", // 按钮颜色
-                  borderColor: course.selected ? "#f5222d" : "#1890ff",
-                  color: "#fff",
-                }}
-              >
-                {course.selected ? "Selected" : "Select"}
-              </Button>
-            ),
-          },
-        ]}
+        columns={columns}
         dataSource={filteredCourses}
+        rowKey="courseId"
         pagination={paginationConfig}
       />
     </div>
