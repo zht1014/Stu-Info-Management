@@ -51,13 +51,14 @@ const ManageCourse = () => {
   // 保存更新
   const handleSaveCourse = async () => {
     try {
-      console.log("Editing values:", editingValues);
+      const {updateDatetime, ...payload } = editingValues;
       await axios.put(
         `http://localhost:8080/api/course/${editingCourseId}`,
         {
           ...editingValues,
           startDate: editingValues.startDate.format("YYYY-MM-DD") + "T00:00:00",
           endDate: editingValues.endDate.format("YYYY-MM-DD") + "T00:00:00",
+          updateDatetime: new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toISOString(),
         },
         { headers: { authToken: jwt } }
       );

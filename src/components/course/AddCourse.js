@@ -1,147 +1,116 @@
-import React, { useState } from "react";
-import { Form, Input, Select, DatePicker, Button, notification } from "antd";
-import coursesData from "../../data/courseData"; // 假设这是你的模拟数据路径
+import React, { useState, useContext } from "react";
+import { Form, Input, DatePicker, InputNumber, Button, notification } from "antd";
+import { AuthContext } from "../../AuthContext";
+import axios from "axios";
+import dayjs from "dayjs";
 
-const { Option } = Select;
+const { TextArea } = Input;
 
 const AddCourse = () => {
-  const [form] = Form.useForm();
-  const [courses, setCourses] = useState(coursesData); // 使用状态管理课程数据
+  const { jwt } = useContext(AuthContext); // 从 AuthContext 中获取 JWT
+  const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm(); // 使用 Form 的实例
 
-  // 从已有课程数据集中获取教师和部门信息
-  const faculties = [...new Set(coursesData.map((course) => course.faculty))];
-  const departments = [...new Set(coursesData.map((course) => course.department))];
-
-  const handleAddCourse = (values) => {
-    console.log("Submitted values:", values); // 调试信息，查看提交的值
-    const {
-      courseName,
-      courseDescription,
-      startDate,
-      endDate,
-      faculty,
-      credits,
-      department,
-    } = values;
-
-    const newCourse = {
-      key: courses.length, // 生成一个新的 key
-      courseName,
-      courseDescription,
-      startDate,
-      endDate,
-      faculty,
-      credits,
-      department,
-      selected: false,
+  const onFinish = async (values) => {
+    setLoading(true);
+    const currentDatetime = dayjs().format("YYYY-MM-DDTHH:mm:ss"); // 北京时间
+    const payload = {
+      ...values,
+      status: "ACTIVE", // 设置课程状态为 ACTIVE
+      createDatetime: currentDatetime,
+      updateDatetime: currentDatetime,
+      startDate: values.startDate.format("YYYY-MM-DD") + "T00:00:00",
+      endDate: values.endDate.format("YYYY-MM-DD") + "T00:00:00",
     };
 
-    // 将新的课程添加到课程数据集中
-    setCourses((prevCourses) => [...prevCourses, newCourse]);
-
-    // 通知新增成功
-    notification.success({
-      message: "Course Added",
-      description: `You have successfully added the course: ${courseName}`,
-      placement: "topRight",
-    });
-
-    form.resetFields(); // 重置表单
+    try {
+      await axios.post("http://localhost:8080/api/course", payload, {
+        headers: {
+          authToken: jwt, // JWT 认证
+        },
+        withCredentials: true,
+      });
+      notification.success({
+        message: "Course Added",
+        description: `The course ${values.courseName} has been added successfully.`,
+      });
+      form.resetFields(); // 清空表单内容
+    } catch (error) {
+      console.error("Error adding course:", error);
+      notification.error({
+        message: "Error",
+        description: "There was an error adding the course.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ maxWidth: 600, margin: "0 auto" }}>
       <h2>Add New Course</h2>
-      <Form
-        form={form}
-        onFinish={handleAddCourse}
-        layout="vertical"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
+      <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item
           label="Course Name"
           name="courseName"
-          rules={[{ required: true, message: "Please input the course name!" }]}
+          rules={[{ required: true, message: "Please enter the course name" }]}
         >
-          <Input style={{ width: 300 }} /> {/* 设置输入框宽度 */}
+          <Input placeholder="Enter course name" />
         </Form.Item>
 
         <Form.Item
-          label="Description"
+          label="Course Description"
           name="courseDescription"
-          rules={[{ required: true, message: "Please input the course description!" }]}
+          rules={[{ required: true, message: "Please enter the course description" }]}
         >
-          <Input.TextArea rows={4} style={{ width: 300 }} /> {/* 设置输入框宽度 */}
+          <TextArea placeholder="Enter course description" rows={4} />
+        </Form.Item>
+
+        <Form.Item
+          label="Teacher Name"
+          name="teacherName"
+          rules={[{ required: true, message: "Please enter the teacher's name" }]}
+        >
+          <Input placeholder="Enter teacher's name" />
         </Form.Item>
 
         <Form.Item
           label="Start Date"
           name="startDate"
-          rules={[{ required: true, message: "Please select the start date!" }]}
+          rules={[{ required: true, message: "Please select the start date" }]}
         >
-          <DatePicker style={{ width: 300 }} /> {/* 设置输入框宽度 */}
+          <DatePicker format="YYYY-MM-DD" />
         </Form.Item>
 
         <Form.Item
           label="End Date"
           name="endDate"
-          rules={[{ required: true, message: "Please select the end date!" }]}
+          rules={[{ required: true, message: "Please select the end date" }]}
         >
-          <DatePicker style={{ width: 300 }} /> {/* 设置输入框宽度 */}
-        </Form.Item>
-
-        <Form.Item
-          label="Faculty"
-          name="faculty"
-          rules={[{ required: true, message: "Please select a faculty!" }]}
-        >
-          <Select placeholder="Select Faculty" style={{ width: 300 }}>
-            {faculties.map((faculty) => (
-              <Option key={faculty} value={faculty}>
-                {faculty}
-              </Option>
-            ))}
-          </Select>
+          <DatePicker format="YYYY-MM-DD" />
         </Form.Item>
 
         <Form.Item
           label="Credits"
           name="credits"
-          rules={[{ required: true, message: "Please input the number of credits!" }]}
+          rules={[
+            { required: true, message: "Please enter the credits" },
+            { type: "number", min: 1, max: 10, message: "Credits should be between 1 and 10" },
+          ]}
         >
-          <Input
-            type="number"
-            min={1}
-            max={5}
-            step={0.1}
-            style={{ width: 300 }}
-          /> {/* 设置输入框宽度 */}
+          <InputNumber placeholder="Enter credits" min={1} max={10} />
         </Form.Item>
 
         <Form.Item
           label="Department"
           name="department"
-          rules={[{ required: true, message: "Please select a department!" }]}
+          rules={[{ required: true, message: "Please enter the department" }]}
         >
-          <Select placeholder="Select Department" style={{ width: 300 }}>
-            {departments.map((department) => (
-              <Option key={department} value={department}>
-                {department}
-              </Option>
-            ))}
-          </Select>
+          <Input placeholder="Enter department" />
         </Form.Item>
 
         <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            style={{ display: "block", margin: "0 auto" }}
-          >
+          <Button type="primary" htmlType="submit" loading={loading} style={{ width: "100%" }}>
             Add Course
           </Button>
         </Form.Item>
