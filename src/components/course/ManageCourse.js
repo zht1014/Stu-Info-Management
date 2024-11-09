@@ -51,12 +51,13 @@ const ManageCourse = () => {
   // 保存更新
   const handleSaveCourse = async () => {
     try {
+      console.log("Editing values:", editingValues);
       await axios.put(
         `http://localhost:8080/api/course/${editingCourseId}`,
         {
           ...editingValues,
-          startDate: editingValues.startDate.format("YYYY-MM-DD"),
-          endDate: editingValues.endDate.format("YYYY-MM-DD"),
+          startDate: editingValues.startDate.format("YYYY-MM-DD") + "T00:00:00",
+          endDate: editingValues.endDate.format("YYYY-MM-DD") + "T00:00:00",
         },
         { headers: { authToken: jwt } }
       );
@@ -173,6 +174,20 @@ const ManageCourse = () => {
           />
         ) : (
           dayjs(text).format("YYYY-MM-DD")
+        ),
+    },
+    {
+      title: "Credits", 
+      dataIndex: "credits", 
+      key: "credits",
+      render: (text, course) =>
+        editingCourseId === course.courseId ? (
+          <Input
+            value={editingValues.credits}
+            onChange={(e) => handleValueChange("credits", e.target.value)}
+          />
+        ) : (
+          text
         ),
     },
     {

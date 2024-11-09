@@ -10,6 +10,8 @@ import {
 } from "antd";
 import { AuthContext } from "../../AuthContext";
 import axios from 'axios'
+import dayjs from "dayjs";
+
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -90,11 +92,18 @@ const ViewCourse = () => {
       title: "Start Date",
       dataIndex: "startDate",
       key: "startDate",
+      render: (text) => dayjs(text).format("YYYY-MM-DD"),
     },
     {
       title: "End Date",
       dataIndex: "endDate",
       key: "endDate",
+      render: (text) => dayjs(text).format("YYYY-MM-DD"),
+    },
+    {
+      title: "Credits", 
+      dataIndex: "credits", 
+      key: "credits",
     },
     {
       title: "Teacher", 
