@@ -96,7 +96,7 @@ const NavProvider = ({ children }) => {
           key: "2",
           icon: <DesktopOutlined />,
           label: "Option 2",
-          component: () => <TakeAttendance />,
+          component: () => <TakeAttendance studentId={1}/>,  //需要拿到studentid传入这个组件
         },
         {
           key: "course",
@@ -125,7 +125,7 @@ const NavProvider = ({ children }) => {
           icon: <TeamOutlined />,
           label: "exam",
           children: [
-            { key: "6", label: "View Wxam", component: () => <ViewExam/> },
+            { key: "6", label: "View Exam", component: () => <ViewExam/> },
             { key: "8", label: "Edit Exam", component: () => <EditExam/> },
             { key: "9", label: "Add Exam", component: () => <h1>sub2-2</h1> },
           ],
@@ -133,8 +133,11 @@ const NavProvider = ({ children }) => {
         {
           key: "10",
           icon: <FileOutlined />,
-          label: "Files",
-          component: () => <h1>Component 5</h1>,
+          label: "Grades",
+          children: [
+            { key: "12", label: "View Grade", component: () => <StudentGrades/> },
+            { key: "11", label: "Edit Grade", component: () => <EditGrades/> },
+          ],
         },
       ]);
     }
@@ -208,7 +211,7 @@ const Home = () => {
               <Popover
                 content={
                   <div style={{ padding: 5, paddingRight: 10 }}>
-                    <a onClick={hide}>Close</a>
+                    <Button onClick={hide}>Close</Button>
                   </div>
                 }
                 title="Title"

@@ -22,7 +22,7 @@ const Login = () => {
             if (response.data.success) {
                 // 获取 JWT token
                 const token = response.data.data;
-                
+                console.log(response.data.data)
                 // 将 token 存储到 localStorage
                 //localStorage.setItem('jwtToken', token);
                 setJwt(token)

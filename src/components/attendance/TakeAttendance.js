@@ -1,18 +1,28 @@
 // src/AttendanceForm.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Form, Input, Button, DatePicker, Select, message } from "antd";
 import axios from "axios";
+import { AuthContext } from "../../AuthContext";
 
-const TakeAttendance = ({ studentId  }) => {
+const TakeAttendance = ({ studentId }) => {
   const [loading, setLoading] = useState(false);
   const [courses, setCourses] = useState([]);
+  const { jwt } = useContext(AuthContext)
 
+ 
   // 加载课程列表
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get('/api/v1/courses'); // 假设获取课程的API端点
-        setCourses(response.data); // 假设返回的课程数据是数组
+        const url = "http://localhost:8080/api/course"
+        const response = await axios.get(url, {
+          headers: {
+            authToken: jwt, // 添加 JWT token
+          },
+          withCredentials: true
+        }); // 假设获取课程的API端点
+        const data = response.data.data || [];
+        setCourses(data);
       } catch (error) {
         message.error("Failed to load courses.");
       }
@@ -24,8 +34,24 @@ const TakeAttendance = ({ studentId  }) => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      const url = `/api/v1/attendance/add/${studentId}/${values.courseId}`;
-      await axios.post(url, values);
+      const course = values.courseId
+      const url = `http://localhost:8080/api/v1/attendance/add/${studentId}/${course}`;
+      console.log(values)
+      const requestBody = {
+        "studentId": studentId,        
+        "courseId": course,            
+        "status": values.status,        
+        "remarks": values.remarks,      
+        "createUser": "teacher1",       
+        "teacherId": 1                  
+      };
+      console.log(requestBody)
+      await axios.post(url, requestBody, {
+        headers: {
+          authToken: jwt, // 添加 JWT token
+        },
+        withCredentials: true
+      });
       message.success("Attendance record saved successfully");
     } catch (error) {
       message.error("Failed to save attendance record.");
@@ -43,8 +69,8 @@ const TakeAttendance = ({ studentId  }) => {
       >
         <Select placeholder="Select a course">
           {courses.map((course) => (
-            <Select.Option key={course.id} value={course.id}>
-              {course.name}
+            <Select.Option key={course.courseId} value={course.courseId}>
+              {course.courseName}
             </Select.Option>
           ))}
         </Select>
@@ -62,8 +88,8 @@ const TakeAttendance = ({ studentId  }) => {
         rules={[{ required: true, message: "Please select a status" }]}
       >
         <Select>
-          <Select.Option value="Present">Present</Select.Option>
-          <Select.Option value="Absent">Absent</Select.Option>
+          <Select.Option value="PRESENT">Present</Select.Option>
+          <Select.Option value="ABSENT">Absent</Select.Option>
         </Select>
       </Form.Item>
       <Form.Item name="remarks" label="Remarks">

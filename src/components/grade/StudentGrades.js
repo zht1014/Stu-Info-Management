@@ -1,18 +1,27 @@
 // src/StudentGrades.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Table, message, Input, Button } from "antd";
 import axios from "axios";
+import { AuthContext } from "../../AuthContext";
 
 const StudentGrades = () => {
   const [grades, setGrades] = useState([]);
   const [studentId, setStudentId] = useState("");
   const [loading, setLoading] = useState(false);
+  const { jwt } = useContext(AuthContext)
 
   const fetchGrades = async (id) => {
     setLoading(true);
     try {
-      const response = await axios.get(`/api/grade/student/${id}`);
-      setGrades(response.data.data); // 假设 API 返回的数据在 data.data 中
+      const response = await axios.get(`http://localhost:8080/api/grade/student/${id}`, {
+        headers: {
+          authToken: jwt, // 添加 JWT token
+        },
+        withCredentials: true
+      });
+      const data = response.data.data ? [response.data.data] : [];
+      console.log(data)
+      setGrades(data);
     } catch (error) {
       message.error("Failed to load grades.");
     } finally {

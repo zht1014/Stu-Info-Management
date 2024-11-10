@@ -22,6 +22,7 @@ const ViewAttendance = ({ teacherId, studentId }) => {
         withCredentials: true
       });
       setAttendances(data);
+      console.log(data)
     } catch (error) {
       message.error("Failed to fetch attendance records.");
     } finally {
@@ -30,13 +31,18 @@ const ViewAttendance = ({ teacherId, studentId }) => {
   };
 
   useEffect(() => {
-    console.log(jwt)
+
     fetchAttendance();
   }, [teacherId, studentId]);
 
   const deleteAttendance = async (record) => {
     try {
-      await axios.delete(`/api/v1/attendance/delete/${record.studentId}/${record.courseId}`);
+      await axios.delete(`http://localhost:8080/api/v1/attendance/delete/${record.studentId}/${record.courseId}`,{
+        headers: {
+          authToken: jwt, // 添加 JWT token
+        },
+        withCredentials: true
+      });
       message.success("Attendance record deleted successfully");
       fetchAttendance();
     } catch (error) {

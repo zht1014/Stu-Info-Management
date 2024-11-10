@@ -1,19 +1,28 @@
 // src/EditGrades.js
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Table, message, Input, Button, InputNumber, Popconfirm } from "antd";
 import axios from "axios";
+import { AuthContext } from "../../AuthContext";
 
 const EditGrades = () => {
   const [grades, setGrades] = useState([]);
   const [courseId, setCourseId] = useState("");
   const [loading, setLoading] = useState(false);
   const [editingGradeId, setEditingGradeId] = useState(null);
+  const {jwt} = useContext(AuthContext)
 
   const fetchGrades = async (id) => {
     setLoading(true);
     try {
-      const response = await axios.get(`/api/grade/course/${id}`);
-      setGrades(response.data.data);
+      const response = await axios.get(`http://localhost:8080/api/grade/course/${id}`,{
+        headers: {
+          authToken: jwt, // 添加 JWT token
+        },
+        withCredentials: true
+      });
+      const data = response.data.data ? [response.data.data] : [];
+      console.log(data)
+      setGrades(data);
     } catch (error) {
       message.error("Failed to load grades.");
     } finally {
@@ -31,7 +40,12 @@ const EditGrades = () => {
 
   const saveGrade = async (record) => {
     try {
-      await axios.put(`/api/grade/${record.gradeId}`, record);
+      await axios.put(`http://localhost:8080/api/grade/${record.gradeId}`, record,{
+        headers: {
+          authToken: jwt, // 添加 JWT token
+        },
+        withCredentials: true
+      });
       message.success("Grade updated successfully.");
       fetchGrades(courseId);
     } catch (error) {
@@ -41,7 +55,12 @@ const EditGrades = () => {
 
   const deleteGrade = async (gradeId) => {
     try {
-      await axios.delete(`/api/grade/${gradeId}`);
+      await axios.delete(`http://localhost:8080/api/grade/${gradeId}`,{
+        headers: {
+          authToken: jwt, // 添加 JWT token
+        },
+        withCredentials: true
+      });
       message.success("Grade deleted successfully.");
       setGrades((prevGrades) => prevGrades.filter((grade) => grade.gradeId !== gradeId));
     } catch (error) {
