@@ -9,11 +9,11 @@ axios.defaults.timeout = 10000
  * @param {Object} params [请求时携带的参数]
  * @param {Object} headers [可选的请求头]
  */
-export function get(url, params, headers = {}) {
+export function get(url, params = null, headers = {}) {
   return new Promise((resolve, reject) => {
     axios
       .get(url, {
-        params: params,
+        ...(params && { params }),
         headers: headers, 
       })
       .then(res => {

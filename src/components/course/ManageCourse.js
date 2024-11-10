@@ -1,71 +1,133 @@
-import React, { useState } from "react";
-import dayjs from 'dayjs';
-import { Table, Input, DatePicker, Select, Button, Modal, notification } from "antd";
-import coursesData from "../../data/courseData"; // 假设这是你的模拟数据路径
+import React, { useState, useEffect, useContext } from "react";
+import dayjs from "dayjs";
+import {
+  Table,
+  Input,
+  DatePicker,
+  Button,
+  Modal,
+  notification,
+  Popconfirm,
+} from "antd";
+import { AuthContext } from "../../AuthContext";
+import axios from "axios";
 
 const { RangePicker } = DatePicker;
-const { Option } = Select;
 
 const ManageCourse = () => {
+  const { jwt } = useContext(AuthContext);
+  const [courses, setCourses] = useState([]);
+  const [editingCourseId, setEditingCourseId] = useState(null);
+  const [editingValues, setEditingValues] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [searchText, setSearchText] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState(undefined);
-  const [selectedFaculty, setSelectedFaculty] = useState(undefined);
-  const [dates, setDates] = useState([]);
-  const [editingCourse, setEditingCourse] = useState(null); // 当前正在编辑的课程
-  const [courses, setCourses] = useState(coursesData); // 使用状态来保存课程数据
 
-  // 获取唯一的院系和教师列表
-  const departments = [...new Set(courses.map((course) => course.department))];
-  const faculties = [...new Set(courses.map((course) => course.faculty))];
+  useEffect(() => {
+    fetchCourseData();
+  }, []);
 
-  // 处理删除课程
-  const handleDeleteCourse = (course) => {
-    Modal.confirm({
-      title: "Confirm Deletion",
-      content: `Are you sure you want to delete the course: ${course.courseName}?`,
-      onOk: () => {
-        setCourses((prevCourses) => prevCourses.filter((c) => c.key !== course.key));
-        notification.success({
-          message: "Course Deleted",
-          description: `You have successfully deleted the course: ${course.courseName}`,
-          placement: "topRight",
-        });
-      },
-    });
-  };
-
-  // 处理更新课程
-  const handleUpdateCourse = (course) => {
-    if (editingCourse?.key === course.key) {
-      // 确认更新
-      setCourses((prevCourses) =>
-        prevCourses.map((c) => (c.key === course.key ? editingCourse : c))
-      );
-      setEditingCourse(null); // 重置编辑状态
-      notification.success({
-        message: "Course Updated",
-        description: `You have successfully updated the course: ${course.courseName}`,
-        placement: "topRight",
+  const fetchCourseData = async () => {
+    try {
+      const { data } = await axios.get("http://localhost:8080/api/course", {
+        headers: { authToken: jwt },
+        withCredentials: true,
       });
-    } else {
-      // 进入编辑状态
-      setEditingCourse(course);
+      setCourses(data.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   };
 
-  // 定义表格列
+  // 进入编辑模式
+  const handleEditCourse = (course) => {
+    setEditingCourseId(course.courseId); // 使用 courseId 作为编辑标识
+    setEditingValues({
+      ...course,
+      startDate: dayjs(course.startDate),
+      endDate: dayjs(course.endDate),
+    });
+  };
+
+  // 保存更新
+  const handleSaveCourse = async () => {
+    try {
+      const {updateDatetime, ...payload } = editingValues;
+      await axios.put(
+        `http://localhost:8080/api/course/${editingCourseId}`,
+        {
+          ...editingValues,
+          startDate: editingValues.startDate.format("YYYY-MM-DD") + "T00:00:00",
+          endDate: editingValues.endDate.format("YYYY-MM-DD") + "T00:00:00",
+          updateDatetime: new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toISOString(),
+        },
+        { headers: { authToken: jwt } }
+      );
+      setCourses((prevCourses) =>
+        prevCourses.map((course) =>
+          course.courseId === editingCourseId ? { ...editingValues } : course
+        )
+      );
+      notification.success({
+        message: "Course Updated",
+        description: "The course has been successfully updated.",
+        placement: "topRight",
+      });
+      setEditingCourseId(null);
+    } catch (error) {
+      console.error("Error updating course:", error);
+      notification.error({
+        message: "Update Failed",
+        description: "Failed to update the course.",
+        placement: "topRight",
+      });
+    }
+  };
+
+  // 取消编辑
+  const handleCancelEdit = () => {
+    setEditingCourseId(null);
+    setEditingValues({});
+  };
+
+  // 删除课程
+  const handleDeleteCourse = async (courseId) => {
+    try {
+      await axios.delete(`http://localhost:8080/api/course/${courseId}`, {
+        headers: { authToken: jwt },
+      });
+      setCourses((prevCourses) =>
+        prevCourses.filter((course) => course.courseId !== courseId)
+      );
+      notification.success({
+        message: "Course Deleted",
+        description: "The course has been successfully deleted.",
+        placement: "topRight",
+      });
+    } catch (error) {
+      console.error("Error deleting course:", error);
+      notification.error({
+        message: "Delete Failed",
+        description: "Failed to delete the course.",
+        placement: "topRight",
+      });
+    }
+  };
+
+  // 更新编辑的值
+  const handleValueChange = (key, value) => {
+    setEditingValues((prevValues) => ({ ...prevValues, [key]: value }));
+  };
+
   const columns = [
     {
       title: "Course Name",
       dataIndex: "courseName",
       key: "courseName",
       render: (text, course) =>
-        editingCourse?.key === course.key ? (
+        editingCourseId === course.courseId ? (
           <Input
-            value={editingCourse.courseName}
-            onChange={(e) => setEditingCourse({ ...editingCourse, courseName: e.target.value })}
+            value={editingValues.courseName}
+            onChange={(e) => handleValueChange("courseName", e.target.value)}
           />
         ) : (
           text
@@ -76,10 +138,12 @@ const ManageCourse = () => {
       dataIndex: "courseDescription",
       key: "courseDescription",
       render: (text, course) =>
-        editingCourse?.key === course.key ? (
+        editingCourseId === course.courseId ? (
           <Input
-            value={editingCourse.courseDescription}
-            onChange={(e) => setEditingCourse({ ...editingCourse, courseDescription: e.target.value })}
+            value={editingValues.courseDescription}
+            onChange={(e) =>
+              handleValueChange("courseDescription", e.target.value)
+            }
           />
         ) : (
           text
@@ -90,13 +154,13 @@ const ManageCourse = () => {
       dataIndex: "startDate",
       key: "startDate",
       render: (text, course) =>
-        editingCourse?.key === course.key ? (
+        editingCourseId === course.courseId ? (
           <DatePicker
-            value={editingCourse.startDate ? dayjs(editingCourse.startDate) : null}
-            onChange={(date) => setEditingCourse({ ...editingCourse, startDate: date ? date.toISOString() : null })}
+            value={editingValues.startDate}
+            onChange={(date) => handleValueChange("startDate", date)}
           />
         ) : (
-          new Date(text).toLocaleDateString() // 将日期格式化为可读字符串
+          dayjs(text).format("YYYY-MM-DD")
         ),
     },
     {
@@ -104,117 +168,80 @@ const ManageCourse = () => {
       dataIndex: "endDate",
       key: "endDate",
       render: (text, course) =>
-        editingCourse?.key === course.key ? (
+        editingCourseId === course.courseId ? (
           <DatePicker
-            value={editingCourse.endDate ? dayjs(editingCourse.endDate) : null}
-            onChange={(date) => setEditingCourse({ ...editingCourse, endDate: date ? date.toISOString() : null })}
+            value={editingValues.endDate}
+            onChange={(date) => handleValueChange("endDate", date)}
           />
         ) : (
-          new Date(text).toLocaleDateString() // 将日期格式化为可读字符串
+          dayjs(text).format("YYYY-MM-DD")
         ),
     },
     {
-      title: "Faculty",
-      dataIndex: "faculty",
-      key: "faculty",
-      render: (text, course) =>
-        editingCourse?.key === course.key ? (
-          <Select
-            value={editingCourse.faculty}
-            onChange={(value) => setEditingCourse({ ...editingCourse, faculty: value })}
-          >
-            {faculties.map((faculty) => (
-              <Option key={faculty} value={faculty}>
-                {faculty}
-              </Option>
-            ))}
-          </Select>
-        ) : (
-          text
-        ),
-    },
-    {
-      title: "Credits",
-      dataIndex: "credits",
+      title: "Credits", 
+      dataIndex: "credits", 
       key: "credits",
       render: (text, course) =>
-        editingCourse?.key === course.key ? (
+        editingCourseId === course.courseId ? (
           <Input
-            type="number"
-            value={editingCourse.credits}
-            onChange={(e) => setEditingCourse({ ...editingCourse, credits: e.target.value })}
+            value={editingValues.credits}
+            onChange={(e) => handleValueChange("credits", e.target.value)}
           />
         ) : (
           text
         ),
     },
     {
-      title: "Department",
-      dataIndex: "department",
-      key: "department",
+      title: "Teacher",
+      dataIndex: "teacherName",
+      key: "teacherName",
       render: (text, course) =>
-        editingCourse?.key === course.key ? (
-          <Select
-            value={editingCourse.department}
-            onChange={(value) => setEditingCourse({ ...editingCourse, department: value })}
-          >
-            {departments.map((department) => (
-              <Option key={department} value={department}>
-                {department}
-              </Option>
-            ))}
-          </Select>
+        editingCourseId === course.courseId ? (
+          <Input
+            value={editingValues.teacherName}
+            onChange={(e) => handleValueChange("teacherName", e.target.value)}
+          />
         ) : (
           text
         ),
     },
     {
-      title: "Action",
-      key: "action",
-      render: (_, course) => (
-        <div>
-          <Button
-            type="primary"
-            onClick={() => handleUpdateCourse(course)}
-            style={{ marginRight: 8 }}
-          >
-            {editingCourse?.key === course.key ? "Confirm" : "Update"}
-          </Button>
-          <Button
-            type="danger"
-            onClick={() => handleDeleteCourse(course)}
-          >
-            Delete
-          </Button>
-        </div>
-      ),
+      title: "Actions",
+      key: "actions",
+      render: (_, course) =>
+        editingCourseId === course.courseId ? (
+          <div>
+            <Button type="link" onClick={handleSaveCourse}>
+              Save
+            </Button>
+            <Button type="link" onClick={handleCancelEdit}>
+              Cancel
+            </Button>
+          </div>
+        ) : (
+          <div>
+            <Button type="link" onClick={() => handleEditCourse(course)}>
+              Edit
+            </Button>
+            <Popconfirm
+              title="Are you sure you want to delete this course?"
+              onConfirm={() => handleDeleteCourse(course.courseId)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="link" danger>
+                Delete
+              </Button>
+            </Popconfirm>
+          </div>
+        ),
     },
   ];
 
-  // 处理过滤
-  const filteredCourses = courses.filter((course) => {
-    const isInDepartment = selectedDepartment
-      ? course.department === selectedDepartment
-      : true;
-    const isInFaculty = selectedFaculty
-      ? course.faculty === selectedFaculty
-      : true;
-    const isInDateRange =
-      dates.length === 2
-        ? new Date(course.startDate) >= dates[0] && new Date(course.endDate) <= dates[1]
-        : true;
-    const isMatched = course.courseName
-      .toLowerCase()
-      .includes(searchText.toLowerCase());
-
-    return isInDepartment && isInFaculty && isInDateRange && isMatched;
-  });
-
-  // 处理分页逻辑
   const paginationConfig = {
     current: currentPage,
     pageSize: pageSize,
-    total: filteredCourses.length,
+    total: courses.length,
     showSizeChanger: true,
     onChange: (page, size) => {
       setCurrentPage(page);
@@ -223,68 +250,11 @@ const ManageCourse = () => {
   };
 
   return (
-    <div>
-      <div style={{ marginBottom: 16 }}>
-        <Input
-          placeholder="Search by Course Name"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          style={{ width: 200, marginRight: 16 }}
-        />
-        <Select
-          placeholder="Select Department"
-          value={selectedDepartment}
-          onChange={(value) =>
-            setSelectedDepartment(value === "ALL" ? undefined : value)
-          }
-          style={{ width: 200, marginRight: 16 }}
-        >
-          <Option value="ALL">All</Option>
-          {departments.map((department) => (
-            <Option key={department} value={department}>
-              {department}
-            </Option>
-          ))}
-        </Select>
-        <Select
-          placeholder="Select Faculty"
-          value={selectedFaculty}
-          onChange={(value) =>
-            setSelectedFaculty(value === "ALL" ? undefined : value)
-          }
-          style={{ width: 200, marginRight: 16 }}
-        >
-          <Option value="ALL">All</Option>
-          {faculties.map((faculty) => (
-            <Option key={faculty} value={faculty}>
-              {faculty}
-            </Option>
-          ))}
-        </Select>
-        <RangePicker
-          value={dates}
-          onChange={(dates) => setDates(dates)}
-          style={{ marginRight: 16 }}
-        />
-        <Button
-          style={{ width: 50, marginRight: 16 }}
-          onClick={() => {
-            setSearchText("");
-            setSelectedDepartment(undefined); // 重置为占位符
-            setSelectedFaculty(undefined); // 重置为占位符
-            setDates([]); // 重置为占位符
-          }}
-        >
-          Reset
-        </Button>
-      </div>
-      <Table
-        dataSource={filteredCourses}
-        columns={columns}
-        pagination={paginationConfig}
-        rowKey="key"
-      />
-    </div>
+    <Table
+      columns={columns}
+      dataSource={courses.map((course) => ({ ...course, key: course.courseId }))}
+      pagination={paginationConfig}
+    />
   );
 };
 
