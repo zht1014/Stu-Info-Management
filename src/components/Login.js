@@ -30,6 +30,7 @@ const Login = () => {
                 setRole(userRole);
 
                 setUserId(response.data.data.userId)
+                console.log(response.data.data.userId)
 
                 message.success('Login successful!');
                 navigate('/home'); // 跳转到主页或其他页面

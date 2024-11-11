@@ -7,7 +7,8 @@ import { AuthContext } from "../../AuthContext";
 const TakeAttendance = ({ studentId }) => {
   const [loading, setLoading] = useState(false);
   const [courses, setCourses] = useState([]);
-  const { jwt } = useContext(AuthContext)
+  const { jwt, userId } = useContext(AuthContext)
+  console.log(studentId)
 
  
   // 加载课程列表

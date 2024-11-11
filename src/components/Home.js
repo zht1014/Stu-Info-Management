@@ -31,7 +31,8 @@ const NavContext = createContext();
 
 const NavProvider = ({ children }) => {
   const [selectedNav, setSelectedNav] = useState("1");
-  const { role } = useContext(AuthContext);
+  const { role, userId } = useContext(AuthContext);
+  console.log(userId)
   const [items, setItems] = useState([
     {
       key: "1",
@@ -97,7 +98,7 @@ const NavProvider = ({ children }) => {
           key: "2",
           icon: <DesktopOutlined />,
           label: "Take Attendance",
-          component: () => <TakeAttendance studentId={1}/>,  //需要拿到studentid传入这个组件
+          component: () => <TakeAttendance studentId={userId}/>,  //需要拿到studentid传入这个组件
         },
         {
           key: "course",
@@ -156,7 +157,6 @@ const NavProvider = ({ children }) => {
 const findNavItem = (items, key) => {
   for (const item of items) {
     if (item.key === key) {
-      console.log(1);
       return item;
     }
     if (item.children) {
