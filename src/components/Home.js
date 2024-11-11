@@ -19,6 +19,7 @@ import EditExam from "./exam/EditExam";
 import ViewCourse from "./course/ViewCourse";
 import ManageCourse from "./course/ManageCourse";
 import AddCourse from "./course/AddCourse";
+import CheckCourse from "./course/CheckCourse";
 import TakeAttendance from "./attendance/TakeAttendance";
 import ViewAttendance from "./attendance/ViewAttendance";
 import EditGrades from "./grade/EditGrades";
@@ -118,6 +119,11 @@ const NavProvider = ({ children }) => {
               key: "add_course",
               label: "Add Course",
               component: () => <AddCourse />,
+            },
+            {
+              key: "check_course",
+              label: "Check Course",
+              component: () => <CheckCourse />,
             },
           ],
         },

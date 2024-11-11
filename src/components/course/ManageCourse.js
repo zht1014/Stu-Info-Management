@@ -5,6 +5,7 @@ import {
   Input,
   DatePicker,
   Button,
+  Select,
   Modal,
   notification,
   Popconfirm,
@@ -13,6 +14,7 @@ import { AuthContext } from "../../AuthContext";
 import axios from "axios";
 
 const { RangePicker } = DatePicker;
+const { Option } = Select;
 
 const ManageCourse = () => {
   const { jwt } = useContext(AuthContext);
@@ -21,6 +23,11 @@ const ManageCourse = () => {
   const [editingValues, setEditingValues] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [searchText, setSearchText] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState(undefined);
+  const [selectedTeacher, setSelectedTeacher] = useState(undefined);
+  const [dates, setDates] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState(undefined);
 
   useEffect(() => {
     fetchCourseData();
@@ -32,15 +39,20 @@ const ManageCourse = () => {
         headers: { authToken: jwt },
         withCredentials: true,
       });
-      setCourses(data.data);
+      const activeCourses = data.data.filter(
+        (course) => course.status === "ACTIVE"
+      );
+      setCourses(activeCourses);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
-  // 进入编辑模式
+  const departments = [...new Set(courses.map((course) => course.department))];
+  const teachers = [...new Set(courses.map((course) => course.teacherName))];
+
   const handleEditCourse = (course) => {
-    setEditingCourseId(course.courseId); // 使用 courseId 作为编辑标识
+    setEditingCourseId(course.courseId);
     setEditingValues({
       ...course,
       startDate: dayjs(course.startDate),
@@ -48,17 +60,16 @@ const ManageCourse = () => {
     });
   };
 
-  // 保存更新
   const handleSaveCourse = async () => {
     try {
-      const {updateDatetime, ...payload } = editingValues;
+      const { updateDatetime, ...payload } = editingValues;
       await axios.put(
         `http://localhost:8080/api/course/${editingCourseId}`,
         {
           ...editingValues,
           startDate: editingValues.startDate.format("YYYY-MM-DD") + "T00:00:00",
           endDate: editingValues.endDate.format("YYYY-MM-DD") + "T00:00:00",
-          updateDatetime: new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toISOString(),
+          updateDatetime: new Date().toISOString(),
         },
         { headers: { authToken: jwt } }
       );
@@ -83,13 +94,11 @@ const ManageCourse = () => {
     }
   };
 
-  // 取消编辑
   const handleCancelEdit = () => {
     setEditingCourseId(null);
     setEditingValues({});
   };
 
-  // 删除课程
   const handleDeleteCourse = async (courseId) => {
     try {
       await axios.delete(`http://localhost:8080/api/course/${courseId}`, {
@@ -113,10 +122,67 @@ const ManageCourse = () => {
     }
   };
 
-  // 更新编辑的值
+  const handleDisapproveCourse = async (course) => {
+    try {
+      await axios.put(
+        `http://localhost:8080/api/course/${course.courseId}`,
+        {
+          ...course,
+          status: "INACTIVE",
+          updateDatetime: new Date(
+            new Date().getTime() + 8 * 60 * 60 * 1000
+          ).toISOString(),
+        },
+        { headers: { authToken: jwt } }
+      );
+      setCourses((prevCourses) =>
+        prevCourses.filter((c) => c.courseId !== course.courseId)
+      );
+      notification.success({
+        message: "Course Disapproved",
+        description: "The course has been successfully disapproved.",
+        placement: "topRight",
+      });
+    } catch (error) {
+      console.error("Error disapproving course:", error);
+      notification.error({
+        message: "Disapproval Failed",
+        description: "Failed to disapprove the course.",
+        placement: "topRight",
+      });
+    }
+  };
+
   const handleValueChange = (key, value) => {
     setEditingValues((prevValues) => ({ ...prevValues, [key]: value }));
   };
+
+  const filteredCourses = courses.filter((course) => {
+    const isInDepartment = selectedDepartment
+      ? course.department === selectedDepartment
+      : true;
+    const isInTeacher = selectedTeacher
+      ? course.teacherName === selectedTeacher
+      : true;
+    const isInDateRange =
+      dates && dates.length === 2
+        ? new Date(course.startDate) >= dates[0] &&
+          new Date(course.endDate) <= dates[1]
+        : true;
+    const isMatched = course.courseName
+      .toLowerCase()
+      .includes(searchText.toLowerCase());
+    const isSelected =
+      selectedStatus === "SELECTED"
+        ? course.selected
+        : selectedStatus === "UNSELECTED"
+        ? !course.selected
+        : true;
+
+    return (
+      isInDepartment && isInTeacher && isInDateRange && isMatched && isSelected
+    );
+  });
 
   const columns = [
     {
@@ -178,32 +244,14 @@ const ManageCourse = () => {
         ),
     },
     {
-      title: "Credits", 
-      dataIndex: "credits", 
-      key: "credits",
-      render: (text, course) =>
-        editingCourseId === course.courseId ? (
-          <Input
-            value={editingValues.credits}
-            onChange={(e) => handleValueChange("credits", e.target.value)}
-          />
-        ) : (
-          text
-        ),
-    },
-    {
       title: "Teacher",
       dataIndex: "teacherName",
       key: "teacherName",
-      render: (text, course) =>
-        editingCourseId === course.courseId ? (
-          <Input
-            value={editingValues.teacherName}
-            onChange={(e) => handleValueChange("teacherName", e.target.value)}
-          />
-        ) : (
-          text
-        ),
+    },
+    {
+      title: "Department",
+      dataIndex: "department",
+      key: "department",
     },
     {
       title: "Actions",
@@ -233,6 +281,16 @@ const ManageCourse = () => {
                 Delete
               </Button>
             </Popconfirm>
+            <Popconfirm
+              title="Are you sure you want to disapprove this course?"
+              onConfirm={() => handleDisapproveCourse(course)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="link" danger>
+                Disapprove
+              </Button>
+            </Popconfirm>
           </div>
         ),
     },
@@ -241,7 +299,7 @@ const ManageCourse = () => {
   const paginationConfig = {
     current: currentPage,
     pageSize: pageSize,
-    total: courses.length,
+    total: filteredCourses.length,
     showSizeChanger: true,
     onChange: (page, size) => {
       setCurrentPage(page);
@@ -250,11 +308,76 @@ const ManageCourse = () => {
   };
 
   return (
-    <Table
-      columns={columns}
-      dataSource={courses.map((course) => ({ ...course, key: course.courseId }))}
-      pagination={paginationConfig}
-    />
+    <div>
+      <div style={{ marginBottom: 16 }}>
+        <Select
+          placeholder="Select Course Status"
+          value={selectedStatus}
+          onChange={(value) => setSelectedStatus(value)}
+          style={{ width: 200, marginRight: 16 }}
+        >
+          <Option value={undefined}>All</Option>
+          <Option value="SELECTED">Selected Courses</Option>
+          <Option value="UNSELECTED">Unselected Courses</Option>
+        </Select>
+        <Input
+          placeholder="Search by Course Name"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 200, marginRight: 16 }}
+        />
+        <Select
+          placeholder="Select Department"
+          value={selectedDepartment}
+          onChange={(value) =>
+            setSelectedDepartment(value === "ALL" ? undefined : value)
+          }
+          style={{ width: 200, marginRight: 16 }}
+        >
+          <Option value="ALL">All</Option>
+          {departments.map((department) => (
+            <Option key={department} value={department}>
+              {department}
+            </Option>
+          ))}
+        </Select>
+        <Select
+          placeholder="Select Teacher"
+          value={selectedTeacher}
+          onChange={(value) => setSelectedTeacher(value)}
+          style={{ width: 200, marginRight: 16 }}
+        >
+          <Option value={undefined}>All</Option>
+          {teachers.map((teacher) => (
+            <Option key={teacher} value={teacher}>
+              {teacher}
+            </Option>
+          ))}
+        </Select>
+        <RangePicker
+          value={dates}
+          onChange={(dates) => setDates(dates)}
+          style={{ marginRight: 16 }}
+        />
+        <Button
+          onClick={() => {
+            setSelectedDepartment(undefined);
+            setSelectedTeacher(undefined);
+            setDates([]);
+            setSelectedStatus(undefined);
+            setSearchText("");
+          }}
+        >
+          Reset Filters
+        </Button>
+      </div>
+      <Table
+        dataSource={filteredCourses}
+        columns={columns}
+        pagination={paginationConfig}
+        rowKey="courseId"
+      />
+    </div>
   );
 };
 

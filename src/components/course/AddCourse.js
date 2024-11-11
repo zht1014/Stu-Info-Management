@@ -7,16 +7,16 @@ import dayjs from "dayjs";
 const { TextArea } = Input;
 
 const AddCourse = () => {
-  const { jwt } = useContext(AuthContext); // 从 AuthContext 中获取 JWT
+  const { jwt } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-  const [form] = Form.useForm(); // 使用 Form 的实例
+  const [form] = Form.useForm();
 
   const onFinish = async (values) => {
     setLoading(true);
-    const currentDatetime = dayjs().format("YYYY-MM-DDTHH:mm:ss"); // 北京时间
+    const currentDatetime = dayjs().format("YYYY-MM-DDTHH:mm:ss");
     const payload = {
       ...values,
-      status: "ACTIVE", // 设置课程状态为 ACTIVE
+      status: "INACTIVE", // INACTIVE (become ACTIVE after that admin checks and approves it)
       createDatetime: currentDatetime,
       updateDatetime: currentDatetime,
       startDate: values.startDate.format("YYYY-MM-DD") + "T00:00:00",
@@ -26,7 +26,7 @@ const AddCourse = () => {
     try {
       await axios.post("http://localhost:8080/api/course", payload, {
         headers: {
-          authToken: jwt, // JWT 认证
+          authToken: jwt,
         },
         withCredentials: true,
       });
@@ -34,7 +34,7 @@ const AddCourse = () => {
         message: "Course Added",
         description: `The course ${values.courseName} has been added successfully.`,
       });
-      form.resetFields(); // 清空表单内容
+      form.resetFields();
     } catch (error) {
       console.error("Error adding course:", error);
       notification.error({
