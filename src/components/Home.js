@@ -25,7 +25,8 @@ import ViewAttendance from "./attendance/ViewAttendance";
 import EditGrades from "./grade/EditGrades";
 import StudentGrades from "./grade/StudentGrades";
 import AddExam from "./exam/AddExam";
-
+import MyNotification from "./notification/MyNotification";
+import ManageNotification from "./notification/ManageNotification";
 const { Header, Content, Footer, Sider } = Layout;
 
 const NavContext = createContext();
@@ -128,6 +129,23 @@ const NavProvider = ({ children }) => {
           ],
         },
         {
+          key: "notification",
+          icon: <FileOutlined />,
+          label: "Notification",
+          children: [
+            {
+              key: "my_notification",
+              label: "My Notification",
+              component: () => <MyNotification/>,
+            },
+            {
+              key: "manage_notification",
+              label: "Manage Notification",
+              component: () => <ManageNotification/>,
+            },
+          ],
+        },
+        {
           key: "sub2",
           icon: <TeamOutlined />,
           label: "exam",
@@ -162,7 +180,7 @@ const NavProvider = ({ children }) => {
 const findNavItem = (items, key) => {
   for (const item of items) {
     if (item.key === key) {
-      console.log(1);
+      // console.log(1);
       return item;
     }
     if (item.children) {
@@ -238,6 +256,7 @@ const Home = () => {
               style={{
                 padding: 24,
                 minHeight: 360,
+                marginTop: 20,
                 background: colorBgContainer,
                 borderRadius: borderRadiusLG,
               }}
