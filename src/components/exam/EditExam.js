@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Form, Input, Select, DatePicker, Popconfirm, Table, Typography } from 'antd';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { AuthContext } from '../../AuthContext';
 
 const { Option } = Select;
 
@@ -31,10 +32,10 @@ const EditableCell = ({
                 </Select>
             );
             break;
-        case 'exam_date':
+        case 'examDate':
             inputNode = (
                 <DatePicker
-                    defaultValue={record.exam_date } 
+                    value={record.examDate ? dayjs(record.examDate) : null}
                     style={{ width: '100%' }}
                     onChange={(date) => {
                         onChange(dataIndex, date);
@@ -42,11 +43,11 @@ const EditableCell = ({
                 />
             );
             break;
-        case 'duration_minutes':
+        case 'durationMinutes':
             inputNode = (
                 <Input
                     type="number"
-                    defaultValue={record.duration_minutes}
+                    defaultValue={record.durationMinutes}
                     onChange={(e) => onChange(dataIndex, e.target.value)}
                 />
             );
@@ -76,27 +77,30 @@ const EditExam = () => {
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
     const [editingKey, setEditingKey] = useState('');
+    const { jwt } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('/exam/list');
-                
-                const dataWithKeys = response.data.list.map((item, index) => ({
+                const response = await axios.get("http://localhost:8080/api/exam", {
+                    headers: {
+                        authToken: jwt, // 添加 JWT token
+                    },
+                    withCredentials: true,
+                });
+                const dataWithKeys = response.data.data.map((item, index) => ({
                     ...item,
                     key: item.id || index,
-                    exam_date: item.exam_date ? dayjs(item.exam_date) : null,
+                    examDate: item.examDate ? dayjs(item.examDate) : null,
                 }));
-                console.log(dataWithKeys)
                 setData(dataWithKeys);
             } catch (error) {
                 console.log(error);
             }
         };
-    
+
         fetchData();
     }, []);
-    
 
     const isEditing = (record) => record.key === editingKey;
 
@@ -104,10 +108,10 @@ const EditExam = () => {
         form.setFieldsValue({
             course_name: record.course_name,
             course_id: record.course_id,
-            exam_date: record.exam_date,
+            examDate: record.examDate,
             location: record.location,
             type: record.type,
-            duration_minutes: record.duration_minutes,
+            durationMinutes: record.durationMinutes,
         });
         setEditingKey(record.key);
     };
@@ -119,20 +123,55 @@ const EditExam = () => {
     const save = async (key) => {
         try {
             const row = await form.validateFields();
-
+            console.log(row)
             const newData = [...data];
             const index = newData.findIndex((item) => key === item.key);
+
             if (index > -1) {
                 const item = newData[index];
-                newData.splice(index, 1, {
-                    ...item,
-                    ...row,
+                const updatedItem = {
+                    examId: item.examId,
+                    courseId: item.courseId,
+                    examName: item.examName,
+                    examDate: row.examDate.format('YYYY-MM-DD'),
+                    examType: item.examType,
+                    durationMinutes: row.durationMinutes,
+                    location: row.location,
+                    status: item.status,
+                    createDatetime: item.createDatetime,
+                    updateDatetime: new Date().toISOString(),
+                    createUser: item.createUser,
+                    updateUser: "currentUser"
+                };
+                console.log(updatedItem)
+
+                await axios.put(`http://localhost:8080/api/exam/${item.examId}`, updatedItem, {
+                    headers: {
+                        authToken: jwt,
+                    },
+                    withCredentials: true,
                 });
+
+                newData.splice(index, 1, updatedItem);
                 setData(newData);
                 setEditingKey('');
             }
         } catch (errInfo) {
             console.log('Validate Failed:', errInfo);
+        }
+    };
+
+    const deleteExam = async (examId) => {
+        try {
+            await axios.delete(`http://localhost:8080/api/exam/${examId}`, {
+                headers: {
+                    authToken: jwt,
+                },
+                withCredentials: true,
+            });
+            setData(data.filter((item) => item.examId !== examId));
+        } catch (error) {
+            console.log('Delete Failed:', error);
         }
     };
 
@@ -149,20 +188,20 @@ const EditExam = () => {
     const columns = [
         {
             title: 'Course Name',
-            dataIndex: 'course_name',
+            dataIndex: 'examName',
             render: (text) => <a>{text}</a>,
         },
         {
             title: 'Id',
-            dataIndex: 'course_id',
+            dataIndex: 'courseId',
         },
         {
             title: 'Date',
-            dataIndex: 'exam_date',
+            dataIndex: 'examDate',
             editable: true,
             render: (text) => {
-                if (text) return text.format('YYYY-MM-DD');
-                return <a style={{ color: 'red' }}>UNSCHEDULED</a>;
+                const date = dayjs.isDayjs(text) ? text : dayjs(text);
+                return date.isValid() ? date.format('YYYY-MM-DD') : <a style={{ color: 'red' }}>UNSCHEDULED</a>;
             },
         },
         {
@@ -176,11 +215,11 @@ const EditExam = () => {
         },
         {
             title: 'Type',
-            dataIndex: 'type',
+            dataIndex: 'examType',
         },
         {
             title: 'Duration Minutes',
-            dataIndex: 'duration_minutes',
+            dataIndex: 'durationMinutes',
             editable: true,
             render: (text) => {
                 if (text) return text;
@@ -188,7 +227,7 @@ const EditExam = () => {
             },
         },
         {
-            title: 'operation',
+            title: 'Operation',
             dataIndex: 'operation',
             render: (_, record) => {
                 const editable = isEditing(record);
@@ -202,9 +241,14 @@ const EditExam = () => {
                         </Popconfirm>
                     </span>
                 ) : (
-                    <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
-                        Edit
-                    </Typography.Link>
+                    <span>
+                        <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
+                            Edit
+                        </Typography.Link>
+                        <Popconfirm title="Are you sure to delete?" onConfirm={() => deleteExam(record.examId)}>
+                            <a style={{ color: 'red', marginLeft: 8 }}>Delete</a>
+                        </Popconfirm>
+                    </span>
                 );
             },
         },
@@ -223,7 +267,7 @@ const EditExam = () => {
                 editing: isEditing(record),
                 onChange: handleChange,
             }),
-        }
+        };
     });
 
     return (

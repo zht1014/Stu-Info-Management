@@ -23,6 +23,7 @@ import TakeAttendance from "./attendance/TakeAttendance";
 import ViewAttendance from "./attendance/ViewAttendance";
 import EditGrades from "./grade/EditGrades";
 import StudentGrades from "./grade/StudentGrades";
+import AddExam from "./exam/AddExam";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -89,13 +90,13 @@ const NavProvider = ({ children }) => {
         {
           key: "1",
           icon: <PieChartOutlined />,
-          label: "Option 1",
+          label: "View Attendance",
           component: () => <ViewAttendance studentId={1}/>,
         },
         {
           key: "2",
           icon: <DesktopOutlined />,
-          label: "Option 2",
+          label: "Take Attendance",
           component: () => <TakeAttendance studentId={1}/>,  //需要拿到studentid传入这个组件
         },
         {
@@ -127,7 +128,7 @@ const NavProvider = ({ children }) => {
           children: [
             { key: "6", label: "View Exam", component: () => <ViewExam/> },
             { key: "8", label: "Edit Exam", component: () => <EditExam/> },
-            { key: "9", label: "Add Exam", component: () => <h1>sub2-2</h1> },
+            { key: "9", label: "Add Exam", component: () => <AddExam/> },
           ],
         },
         {

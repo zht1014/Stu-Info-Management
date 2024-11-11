@@ -9,12 +9,18 @@ import { Color } from 'antd/es/color-picker';
 
 const ViewExam = () => {
     const [examList, setExamList] = useState([])
+    const {jwt} = useContext(AuthContext)
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("/exam/list")
+                const response = await axios.get("http://localhost:8080/api/exam",{
+                    headers: {
+                      authToken: jwt, // 添加 JWT token
+                    },
+                    withCredentials: true
+                  })
                 console.log(response.data)
-                setExamList(response.data.list)
+                setExamList(response.data.data)
             } catch (error) {
                 console.log(error);
             }
@@ -27,19 +33,19 @@ const ViewExam = () => {
 
     const columns = [
         {
-            title: 'Course Name',
-            dataIndex: 'course_name',
-            key: 'course_name',
+            title: 'Exam Name',
+            dataIndex: 'examName',
+            key: 'exam_name',
             render: (text) => <a>{text}</a>,
         },
         {
-            title: 'Id',
-            dataIndex: 'course_id',
+            title: 'Course Id',
+            dataIndex: 'courseId',
             key: 'course_id',
         },
         {
             title: 'Date',
-            dataIndex: 'exam_date',
+            dataIndex: 'examDate',
             key: 'exam_date',
             render: (text) => {
                 if (text) return text
@@ -62,7 +68,7 @@ const ViewExam = () => {
         },
         {
             title: 'Duration Minutes',
-            dataIndex: 'duration_minutes',
+            dataIndex: 'durationMinutes',
             key: 'duration_minutes',
             render: (text) => {
                 if (text) return text

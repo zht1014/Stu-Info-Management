@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../AuthContext';
 
 const Login = () => {
-    const { setRole, setJwt } = useContext(AuthContext);
+    const { setRole, setJwt, setUserId } = useContext(AuthContext);
     const [form] = Form.useForm();
     const navigate = useNavigate();
 
@@ -20,16 +20,16 @@ const Login = () => {
             });
 
             if (response.data.success) {
-                // 获取 JWT token
-                const token = response.data.data;
+
+                const token = response.data.data.token;
                 console.log(response.data.data)
-                // 将 token 存储到 localStorage
-                //localStorage.setItem('jwtToken', token);
+
                 setJwt(token)
-                // 可选：如果需要角色信息，可以解析 JWT 获取角色信息
-                // 这里假设 setRole 是设置角色的函数
+                //const uerRole = response.data.data.role
                 const userRole = 'staff';
                 setRole(userRole);
+
+                setUserId(response.data.data.userId)
 
                 message.success('Login successful!');
                 navigate('/home'); // 跳转到主页或其他页面
