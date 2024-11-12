@@ -9,18 +9,33 @@ import { Color } from 'antd/es/color-picker';
 
 const ViewExam = () => {
     const [examList, setExamList] = useState([])
-    const {jwt} = useContext(AuthContext)
+    const { jwt, userId } = useContext(AuthContext)
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://localhost:8080/api/exam",{
+                const enrollmentUrl = `http://localhost:8080/api/enrollment/user/${userId}`;
+                const { data: enrollmentData } = await axios.get(enrollmentUrl, {
                     headers: {
-                      authToken: jwt, // 添加 JWT token
+                        authToken: jwt,
                     },
-                    withCredentials: true
-                  })
-                console.log(response.data)
-                setExamList(response.data.data)
+                    withCredentials: true,
+                });
+
+                const response = await axios.get("http://localhost:8080/api/exam", {
+                    headers: {
+                        authToken: jwt,
+                    },
+                    withCredentials: true,
+                });
+
+                const enrolledCourses = Array.isArray(enrollmentData.data) ? enrollmentData.data : [];
+                const exams = Array.isArray(response.data.data) ? response.data.data : [];
+
+                const filteredExamList = exams.filter((exam) =>
+                    enrolledCourses.some((enrollment) => enrollment.courseId === exam.courseId)
+                );
+
+                setExamList(filteredExamList);
             } catch (error) {
                 console.log(error);
             }
@@ -28,6 +43,8 @@ const ViewExam = () => {
 
         fetchData();
     }, []);
+
+    
 
     const userRole = useContext(AuthContext)
 

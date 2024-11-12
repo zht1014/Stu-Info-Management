@@ -7,7 +7,7 @@ import { AuthContext } from "../../AuthContext";
 const ViewAttendance = ({ teacherId, studentId }) => {
   const [attendances, setAttendances] = useState([]);
   const [loading, setLoading] = useState(false);
-  const {jwt} = useContext(AuthContext)
+  const {jwt, role} = useContext(AuthContext)
 
   const fetchAttendance = async () => {
     setLoading(true);
@@ -76,20 +76,24 @@ const ViewAttendance = ({ teacherId, studentId }) => {
       dataIndex: "remarks",
       key: "remarks",
     },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (text, record) => (
-        <Popconfirm
-          title="Are you sure you want to delete this record?"
-          onConfirm={() => deleteAttendance(record)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Button danger>Delete</Button>
-        </Popconfirm>
-      ),
-    },
+    ...(role !== "student"
+      ? [
+          {
+            title: "Actions",
+            key: "actions",
+            render: (text, record) => (
+              <Popconfirm
+                title="Are you sure you want to delete this record?"
+                onConfirm={() => deleteAttendance(record)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button danger>Delete</Button>
+              </Popconfirm>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (

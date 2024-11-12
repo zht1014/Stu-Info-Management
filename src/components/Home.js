@@ -27,6 +27,7 @@ import StudentGrades from "./grade/StudentGrades";
 import AddExam from "./exam/AddExam";
 import MyNotification from "./notification/MyNotification";
 import ManageNotification from "./notification/ManageNotification";
+import AddGradeForm from "./grade/AddGrade";
 const { Header, Content, Footer, Sider } = Layout;
 
 const NavContext = createContext();
@@ -125,7 +126,6 @@ const NavProvider = ({ children }) => {
           icon: <TeamOutlined />,
           label: "exam",
           children: [
-            { key: "6", label: "View Exam", component: () => <ViewExam/> },
             { key: "8", label: "Edit Exam", component: () => <EditExam/> },
             { key: "9", label: "Add Exam", component: () => <AddExam/> },
           ],
@@ -227,7 +227,6 @@ const NavProvider = ({ children }) => {
           icon: <TeamOutlined />,
           label: "exam",
           children: [
-            { key: "6", label: "View Exam", component: () => <ViewExam/> },
             { key: "8", label: "Edit Exam", component: () => <EditExam/> },
             { key: "9", label: "Add Exam", component: () => <AddExam/> },
           ],
@@ -239,6 +238,7 @@ const NavProvider = ({ children }) => {
           children: [
             { key: "12", label: "View Grade", component: () => <StudentGrades/> },
             { key: "11", label: "Edit Grade", component: () => <EditGrades/> },
+            { key: "1e", label: "Add Grade", component: () => <AddGradeForm/> },
           ],
         },
       ]) 

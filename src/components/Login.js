@@ -26,7 +26,7 @@ const Login = () => {
 
                 setJwt(token)
                 //const uerRole = response.data.data.role
-                const userRole = 'teacher';
+                const userRole = 'staff';
                 setRole(userRole);
 
                 setUserId(response.data.data.userId)

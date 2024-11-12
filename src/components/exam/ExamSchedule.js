@@ -7,8 +7,11 @@ import { useState } from "react";
 const ExamSchedule = () => {
     const [examList, setExamList] = useState([])
     useEffect(() => {
+
+        console.log("enrollment data is:", enrollmentData.data);
         const fetchData = async () => {
             try {
+                
                 const response = await axios.get("/exam/list");
                 console.log(response.data);
                 setExamList(response.data.list)
@@ -78,15 +81,17 @@ const ExamSchedule = () => {
         <div>
             <Form layout="inline" className="table-demo-control-bar" style={{ marginBottom: 16 }}>
                 <Form.Item label="Date">
-                    <Switch  onChange={(checked)=>{if(checked){
-                        /* 目前逻辑可以是，一个变为true时将其他的全部变为false */
-                    }}}/>
+                    <Switch onChange={(checked) => {
+                        if (checked) {
+                            /* 目前逻辑可以是，一个变为true时将其他的全部变为false */
+                        }
+                    }} />
                 </Form.Item>
                 <Form.Item label="Location">
-                    <Switch  onChange={(checked)=>{}}/>
+                    <Switch onChange={(checked) => { }} />
                 </Form.Item>
                 <Form.Item label="Duration">
-                    <Switch  onChange={(checked)=>{}}/>
+                    <Switch onChange={(checked) => { }} />
                 </Form.Item>
             </Form>
 

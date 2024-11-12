@@ -15,19 +15,36 @@ const TakeAttendance = ({ studentId }) => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const url = "http://localhost:8080/api/course"
-        const response = await axios.get(url, {
-          headers: {
-            authToken: jwt, // 添加 JWT token
-          },
-          withCredentials: true
-        }); // 假设获取课程的API端点
-        const data = response.data.data || [];
-        setCourses(data);
+          const enrollmentUrl = `http://localhost:8080/api/enrollment/user/${userId}`;
+          const { data: enrollmentData } = await axios.get(enrollmentUrl, {
+              headers: {
+                  authToken: jwt,
+              },
+              withCredentials: true,
+          });
+  
+          const courseUrl = "http://localhost:8080/api/course";
+          const courseResponse = await axios.get(courseUrl, {
+              headers: {
+                  authToken: jwt,
+              },
+              withCredentials: true,
+          });
+  
+          // 检查 enrollmentData 和 courseResponse.data.data 是否为数组
+          const enrolledCourses = Array.isArray(enrollmentData.data) ? enrollmentData.data : [];
+          const allCourses = Array.isArray(courseResponse.data.data) ? courseResponse.data.data : [];
+  
+          // 过滤出用户已注册的课程
+          const filteredCourses = allCourses.filter((course) =>
+              enrolledCourses.some((enrollment) => enrollment.courseId === course.courseId)
+          );
+  
+          setCourses(filteredCourses);
       } catch (error) {
-        message.error("Failed to load courses.");
+          message.error("Failed to load courses.");
       }
-    };
+  };
 
     fetchCourses();
   }, []);
