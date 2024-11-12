@@ -12,7 +12,7 @@ const ManageNotification = () => {
     pageSize: 10,
     total: 0,
   });
-  const { jwt, userID } = useContext(AuthContext);
+  const { jwt, userId } = useContext(AuthContext);
 
   // get notifications from API
   const fetchNotifications = async (page = 1, pageSize = 10) => {
@@ -55,7 +55,7 @@ const ManageNotification = () => {
       await axios.post(
         "http://localhost:8080/api/notifications",
         {
-          userId: userID,
+          userId: userId,
           message: newMessage,
           isRead: 0,
           createDatetime: currentDatetime,
@@ -109,7 +109,7 @@ const ManageNotification = () => {
         .put(
           `http://localhost:8080/api/notifications/${notificationId}`,
           {
-            userId: userID,
+            userId: userId,
             message: newMessage,
             isRead: 0,
             createDatetime: currentDatetime,

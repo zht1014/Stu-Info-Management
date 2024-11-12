@@ -30,7 +30,7 @@ const StudentGrades = () => {
   };
 
   useEffect(()=>{
-    if(role === 'student'){
+    if(role === 'STUDENT'){
       fetchGrades(userId)
     }
   }

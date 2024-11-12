@@ -76,7 +76,7 @@ const ViewAttendance = ({ teacherId, studentId }) => {
       dataIndex: "remarks",
       key: "remarks",
     },
-    ...(role !== "student"
+    ...(role !== "STUDENT"
       ? [
           {
             title: "Actions",
