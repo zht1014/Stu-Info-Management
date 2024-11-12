@@ -19,12 +19,14 @@ import EditExam from "./exam/EditExam";
 import ViewCourse from "./course/ViewCourse";
 import ManageCourse from "./course/ManageCourse";
 import AddCourse from "./course/AddCourse";
+import CheckCourse from "./course/CheckCourse";
 import TakeAttendance from "./attendance/TakeAttendance";
 import ViewAttendance from "./attendance/ViewAttendance";
 import EditGrades from "./grade/EditGrades";
 import StudentGrades from "./grade/StudentGrades";
 import AddExam from "./exam/AddExam";
-
+import MyNotification from "./notification/MyNotification";
+import ManageNotification from "./notification/ManageNotification";
 const { Header, Content, Footer, Sider } = Layout;
 
 const NavContext = createContext();
@@ -209,11 +211,6 @@ const NavProvider = ({ children }) => {
           label: "Course",
           children: [
             {
-              key: "view_course",
-              label: "View Course",
-              component: () => <ViewCourse />,
-            },
-            {
               key: "manage_course",
               label: "Manage Course",
               component: () => <ManageCourse />,
@@ -335,6 +332,7 @@ const Home = () => {
               style={{
                 padding: 24,
                 minHeight: 360,
+                marginTop: 20,
                 background: colorBgContainer,
                 borderRadius: borderRadiusLG,
               }}

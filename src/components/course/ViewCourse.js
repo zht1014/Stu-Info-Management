@@ -229,6 +229,7 @@ const ViewCourse = () => {
   ];
 
   const filteredCourses = courses.filter((course) => {
+    const isActive = course.status === "ACTIVE";
     const isInDepartment = selectedDepartment
       ? course.department === selectedDepartment
       : true;
@@ -251,7 +252,7 @@ const ViewCourse = () => {
         : true;
 
     return (
-      isInDepartment && isInTeacher && isInDateRange && isMatched && isSelected
+      isActive && isInDepartment && isInTeacher && isInDateRange && isMatched && isSelected
     );
   });
 
