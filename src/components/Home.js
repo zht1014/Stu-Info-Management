@@ -34,7 +34,7 @@ const NavContext = createContext();
 const NavProvider = ({ children }) => {
   const [selectedNav, setSelectedNav] = useState("1");
   const { role, userId } = useContext(AuthContext);
-  console.log(userId)
+  console.log(userId);
   const [items, setItems] = useState([
     {
       key: "1",
@@ -88,7 +88,7 @@ const NavProvider = ({ children }) => {
   ]);
 
   useEffect(() => {
-    if (role === "staff") {
+    if (role == "ADMIN") {
       setItems([
         {
           key: "attendance",
@@ -98,16 +98,21 @@ const NavProvider = ({ children }) => {
             {
               key: "view_attendance",
               label: "View Attendacne",
-              component: () => <ViewAttendance studentId={1}/>,
+              component: () => <ViewAttendance studentId={1} />,
             },
           ],
-           //需要拿到studentid传入这个组件
+          //需要拿到studentid传入这个组件
         },
         {
           key: "course",
           icon: <FileOutlined />,
           label: "Course",
           children: [
+            {
+              key: "view_course",
+              label: "View Course",
+              component: () => <ViewCourse />,
+            },
             {
               key: "manage_course",
               label: "Manage Course",
@@ -118,6 +123,11 @@ const NavProvider = ({ children }) => {
               label: "Add Course",
               component: () => <AddCourse />,
             },
+            {
+              key: "check_course",
+              label: "Check Course",
+              component: () => <CheckCourse />,
+            },
           ],
         },
         {
@@ -125,9 +135,9 @@ const NavProvider = ({ children }) => {
           icon: <TeamOutlined />,
           label: "exam",
           children: [
-            { key: "6", label: "View Exam", component: () => <ViewExam/> },
-            { key: "8", label: "Edit Exam", component: () => <EditExam/> },
-            { key: "9", label: "Add Exam", component: () => <AddExam/> },
+            { key: "6", label: "View Exam", component: () => <ViewExam /> },
+            { key: "8", label: "Edit Exam", component: () => <EditExam /> },
+            { key: "9", label: "Add Exam", component: () => <AddExam /> },
           ],
         },
         {
@@ -135,13 +145,34 @@ const NavProvider = ({ children }) => {
           icon: <FileOutlined />,
           label: "Grades",
           children: [
-            { key: "12", label: "View Grade", component: () => <StudentGrades/> },
-            { key: "11", label: "Edit Grade", component: () => <EditGrades/> },
+            {
+              key: "12",
+              label: "View Grade",
+              component: () => <StudentGrades />,
+            },
+            { key: "11", label: "Edit Grade", component: () => <EditGrades /> },
           ],
         },
-      ]) ;
+        {
+          key: "notification",
+          icon: <FileOutlined />,
+          label: "Notification",
+          children: [
+            {
+              key: "my_notification",
+              label: "My Notification",
+              component: () => <MyNotification />,
+            },
+            {
+              key: "manage_notification",
+              label: "Manage Notification",
+              component: () => <ManageNotification />,
+            },
+          ],
+        },
+      ]);
     }
-    if(role==='student'){
+    if (role == "STUDENT") {
       setItems([
         {
           key: "attendance",
@@ -151,15 +182,15 @@ const NavProvider = ({ children }) => {
             {
               key: "take_attendance",
               label: "Take Attendacne",
-              component: () => <TakeAttendance studentId={userId}/>,
+              component: () => <TakeAttendance studentId={userId} />,
             },
             {
               key: "view_attendance",
               label: "View Attendance",
-              component: () => <ViewAttendance studentId={1}/>,
+              component: () => <ViewAttendance studentId={1} />,
             },
           ],
-           //需要拿到studentid传入这个组件
+          //需要拿到studentid传入这个组件
         },
         {
           key: "course",
@@ -178,7 +209,7 @@ const NavProvider = ({ children }) => {
           icon: <TeamOutlined />,
           label: "exam",
           children: [
-            { key: "6", label: "View Exam", component: () => <ViewExam/> },
+            { key: "6", label: "View Exam", component: () => <ViewExam /> },
           ],
         },
         {
@@ -186,12 +217,28 @@ const NavProvider = ({ children }) => {
           icon: <FileOutlined />,
           label: "Grades",
           children: [
-            { key: "12", label: "View Grade", component: () => <StudentGrades/> },
+            {
+              key: "12",
+              label: "View Grade",
+              component: () => <StudentGrades />,
+            },
           ],
         },
-      ])
+        {
+          key: "notification",
+          icon: <FileOutlined />,
+          label: "Notification",
+          children: [
+            {
+              key: "my_notification",
+              label: "My Notification",
+              component: () => <MyNotification />,
+            },
+          ],
+        },
+      ]);
     }
-    if(role==='teacher'){
+    if (role == "TEACHER") {
       setItems([
         {
           key: "attendance",
@@ -201,7 +248,7 @@ const NavProvider = ({ children }) => {
             {
               key: "view_attendance",
               label: "View Attendance",
-              component: () => <ViewAttendance teacherId={userId}/>,
+              component: () => <ViewAttendance teacherId={userId} />,
             },
           ],
         },
@@ -211,9 +258,9 @@ const NavProvider = ({ children }) => {
           label: "Course",
           children: [
             {
-              key: "manage_course",
-              label: "Manage Course",
-              component: () => <ManageCourse />,
+              key: "view_course",
+              label: "View Course",
+              component: () => <ViewCourse />,
             },
             {
               key: "add_course",
@@ -227,9 +274,9 @@ const NavProvider = ({ children }) => {
           icon: <TeamOutlined />,
           label: "exam",
           children: [
-            { key: "6", label: "View Exam", component: () => <ViewExam/> },
-            { key: "8", label: "Edit Exam", component: () => <EditExam/> },
-            { key: "9", label: "Add Exam", component: () => <AddExam/> },
+            { key: "6", label: "View Exam", component: () => <ViewExam /> },
+            { key: "8", label: "Edit Exam", component: () => <EditExam /> },
+            { key: "9", label: "Add Exam", component: () => <AddExam /> },
           ],
         },
         {
@@ -237,11 +284,27 @@ const NavProvider = ({ children }) => {
           icon: <FileOutlined />,
           label: "Grades",
           children: [
-            { key: "12", label: "View Grade", component: () => <StudentGrades/> },
-            { key: "11", label: "Edit Grade", component: () => <EditGrades/> },
+            {
+              key: "12",
+              label: "View Grade",
+              component: () => <StudentGrades />,
+            },
+            { key: "11", label: "Edit Grade", component: () => <EditGrades /> },
           ],
         },
-      ]) 
+        {
+          key: "notification",
+          icon: <FileOutlined />,
+          label: "Notification",
+          children: [
+            {
+              key: "my_notification",
+              label: "My Notification",
+              component: () => <MyNotification />,
+            }
+          ],
+        },
+      ]);
     }
   }, [role]);
 
@@ -272,11 +335,7 @@ const NavContent = () => {
 
   const selectedNavObj = findNavItem(items, selectedNav);
 
-  return selectedNavObj ? (
-    selectedNavObj.component()
-  ) : (
-    <div>SSMS</div>
-  );
+  return selectedNavObj ? selectedNavObj.component() : <div>SSMS</div>;
 };
 
 const Home = () => {
@@ -480,7 +539,7 @@ setItems([
     },
   ]) */
 
-    /* setItems([
+/* setItems([
       {
         key: "attendance",
         icon: <DesktopOutlined />,
