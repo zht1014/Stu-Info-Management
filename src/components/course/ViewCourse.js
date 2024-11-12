@@ -16,8 +16,7 @@ const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const ViewCourse = () => {
-  const { userId, setUserId } = useState(1);
-  const { role, jwt } = useContext(AuthContext);
+  const { userId, role, jwt } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchText, setSearchText] = useState("");
@@ -26,48 +25,47 @@ const ViewCourse = () => {
   const [dates, setDates] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState(undefined);
   const [courses, setCourses] = useState([]);
+  const [username, setUsername] = useState(""); // Added username state
 
   const departments = [...new Set(courses.map((course) => course.department))];
   const teachers = [...new Set(courses.map((course) => course.teacherName))];
 
+  // Fetch courses and user information
   useEffect(() => {
     console.log("login role is:", role);
     console.log("Fetching course data...");
 
     const fetchData = async () => {
       try {
-        // Fetch course data
+        // Fetch user details (username)
+        const userUrl = `http://localhost:8080/api/user/${userId}`;
+        const { data: userData } = await axios.get(userUrl, {
+          headers: { authToken: jwt },
+          withCredentials: true,
+        });
+        setUsername(userData.data.username); // Set username from response
+
+        // Fetch courses data
         const courseUrl = "http://localhost:8080/api/course";
         const { data: courseData } = await axios.get(courseUrl, {
-          headers: {
-            authToken: jwt,
-          },
+          headers: { authToken: jwt },
           withCredentials: true,
         });
-        console.log("course data is:", courseData.data);
 
-        // Fetch enrollment data
-        const enrollmentUrl = `http://localhost:8080/api/enrollment/user/1`;
+        // Fetch enrollment data for the user
+        const enrollmentUrl = `http://localhost:8080/api/enrollment/user/${userId}`;
         const { data: enrollmentData } = await axios.get(enrollmentUrl, {
-          headers: {
-            authToken: jwt,
-          },
+          headers: { authToken: jwt },
           withCredentials: true,
         });
-        console.log("enrollment data is:", enrollmentData.data);
 
-        // Update course data with selected status
         setCourses(
           courseData.data.map((course) => {
-            // Find the corresponding enrollment for this course
             const enrollment = enrollmentData.data.find(
               (enrollment) => enrollment.courseId === course.courseId
             );
-
-            // Check if the course is selected
             const isSelected = enrollment ? true : false;
 
-            // Return the course with the added enrollmentId
             return {
               ...course,
               selected: isSelected,
@@ -81,7 +79,7 @@ const ViewCourse = () => {
     };
 
     fetchData();
-  }, [role]);
+  }, [role, userId, jwt]); // Added userId and jwt as dependencies
 
   const handleSelectCourse = async (course) => {
     Modal.confirm({
@@ -92,51 +90,42 @@ const ViewCourse = () => {
       onOk: async () => {
         try {
           if (course.selected) {
-            // Unselect the course
             await axios.delete(
               `http://localhost:8080/api/enrollment/${course.enrollmentId}`,
               {
-                headers: {
-                  authToken: jwt,
-                },
+                headers: { authToken: jwt },
                 withCredentials: true,
               }
             );
-
-            // Modify the course selection status to unselected
             setCourses((prevCourses) =>
               prevCourses.map((c) =>
                 c.courseId === course.courseId ? { ...c, selected: false } : c
               )
             );
-
-            // Notify unselect success
             notification.success({
               message: "Course Unselected",
               description: `You have successfully unselected the course: ${course.courseName}`,
               placement: "topRight",
             });
           } else {
-            // Select the course
             const { data: enrollmentData } = await axios.post(
               `http://localhost:8080/api/enrollment`,
               {
-                studentId: 1, // You can replace this with the actual studentId if needed
+                studentId: userId,
                 courseId: course.courseId,
                 enrollmentDate: dayjs().format("YYYY-MM-DDTHH:mm:ss"),
                 status: "ENROLLED",
                 createDatetime: dayjs().format("YYYY-MM-DDTHH:mm:ss"),
                 updateDatetime: dayjs().format("YYYY-MM-DDTHH:mm:ss"),
+                createUser: username,
+                updateUser: username,
+                studentName: username,
               },
               {
-                headers: {
-                  authToken: jwt,
-                },
+                headers: { authToken: jwt },
                 withCredentials: true,
               }
             );
-
-            // Update the course with the new enrollmentId
             setCourses((prevCourses) =>
               prevCourses.map((c) =>
                 c.courseId === course.courseId
@@ -148,8 +137,6 @@ const ViewCourse = () => {
                   : c
               )
             );
-
-            // Notify select success
             notification.success({
               message: "Course Selected",
               description: `You have successfully selected the course: ${course.courseName}`,
@@ -170,11 +157,7 @@ const ViewCourse = () => {
   };
 
   const columns = [
-    {
-      title: "Course Name",
-      dataIndex: "courseName",
-      key: "courseName",
-    },
+    { title: "Course Name", dataIndex: "courseName", key: "courseName" },
     {
       title: "Description",
       dataIndex: "courseDescription",
@@ -192,40 +175,32 @@ const ViewCourse = () => {
       key: "endDate",
       render: (text) => dayjs(text).format("YYYY-MM-DD"),
     },
-    {
-      title: "Credits",
-      dataIndex: "credits",
-      key: "credits",
-    },
-    {
-      title: "Teacher",
-      dataIndex: "teacherName",
-      key: "teacherName",
-    },
-    {
-      title: "Department",
-      dataIndex: "department",
-      key: "department",
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, course) => (
-        <Button
-          type="primary"
-          danger={course.selected}
-          onClick={() => handleSelectCourse(course)}
-          disabled={false}
-          style={{
-            backgroundColor: course.selected ? "#f5222d" : "#1890ff",
-            borderColor: course.selected ? "#f5222d" : "#1890ff",
-            color: "#fff",
-          }}
-        >
-          {course.selected ? "Unselect" : "Select"}
-        </Button>
-      ),
-    },
+    { title: "Credits", dataIndex: "credits", key: "credits" },
+    { title: "Teacher", dataIndex: "teacherName", key: "teacherName" },
+    { title: "Department", dataIndex: "department", key: "department" },
+    // Conditionally render Action column only if role is STUDENT
+    ...(role === "STUDENT"
+      ? [
+          {
+            title: "Action",
+            key: "action",
+            render: (_, course) => (
+              <Button
+                type="primary"
+                danger={course.selected}
+                onClick={() => handleSelectCourse(course)}
+                style={{
+                  backgroundColor: course.selected ? "#f5222d" : "#1890ff",
+                  borderColor: course.selected ? "#f5222d" : "#1890ff",
+                  color: "#fff",
+                }}
+              >
+                {course.selected ? "Unselect" : "Select"}
+              </Button>
+            ),
+          },
+        ]
+      : []),
   ];
 
   const filteredCourses = courses.filter((course) => {
@@ -252,7 +227,12 @@ const ViewCourse = () => {
         : true;
 
     return (
-      isActive && isInDepartment && isInTeacher && isInDateRange && isMatched && isSelected
+      isActive &&
+      isInDepartment &&
+      isInTeacher &&
+      isInDateRange &&
+      isMatched &&
+      isSelected
     );
   });
 
