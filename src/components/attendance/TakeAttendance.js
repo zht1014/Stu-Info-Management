@@ -55,7 +55,7 @@ const TakeAttendance = ({ studentId }) => {
       });
       message.success("Attendance record saved successfully");
     } catch (error) {
-      message.error("Failed to save attendance record.");
+      message.error("Attendance Taken");
     } finally {
       setLoading(false);
     }

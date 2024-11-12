@@ -1,5 +1,5 @@
 // src/EditGrades.js
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Table, message, Input, Button, InputNumber, Popconfirm } from "antd";
 import axios from "axios";
 import { AuthContext } from "../../AuthContext";
@@ -11,18 +11,18 @@ const EditGrades = () => {
   const [editingGradeId, setEditingGradeId] = useState(null);
   const {jwt} = useContext(AuthContext)
 
-  const fetchGrades = async (id) => {
+  const fetchGrades = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:8080/api/grade/course/${id}`,{
+      const response = await axios.get(`http://localhost:8080/api/grade`,{
         headers: {
-          authToken: jwt, // 添加 JWT token
+          authToken: jwt, 
         },
         withCredentials: true
       });
-      const data = response.data.data ? [response.data.data] : [];
-      console.log(data)
-      setGrades(data);
+      /* const data = response.data.data ? [response.data.data] : [];
+      console.log(data) */
+      setGrades(response.data.data);
     } catch (error) {
       message.error("Failed to load grades.");
     } finally {
@@ -30,13 +30,17 @@ const EditGrades = () => {
     }
   };
 
-  const onSearch = () => {
+  useEffect(() => {
+    fetchGrades();
+  }, []); 
+
+  /* const onSearch = () => {
     if (courseId) {
       fetchGrades(courseId);
     } else {
       message.error("Please enter a course ID.");
     }
-  };
+  }; */
 
   const saveGrade = async (record) => {
     try {
@@ -131,7 +135,7 @@ const EditGrades = () => {
   return (
     <div>
       <h2>Edit Grades</h2>
-      <Input
+      {/* <Input
         placeholder="Enter Course ID"
         value={courseId}
         onChange={(e) => setCourseId(e.target.value)}
@@ -139,7 +143,7 @@ const EditGrades = () => {
       />
       <Button type="primary" onClick={onSearch} loading={loading}>
         Search
-      </Button>
+      </Button> */}
       <Table
         columns={columns}
         dataSource={grades}

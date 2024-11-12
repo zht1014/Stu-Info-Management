@@ -8,7 +8,7 @@ const StudentGrades = () => {
   const [grades, setGrades] = useState([]);
   const [studentId, setStudentId] = useState("");
   const [loading, setLoading] = useState(false);
-  const { jwt } = useContext(AuthContext)
+  const { jwt,userId,role } = useContext(AuthContext)
 
   const fetchGrades = async (id) => {
     setLoading(true);
@@ -28,6 +28,14 @@ const StudentGrades = () => {
       setLoading(false);
     }
   };
+
+  useEffect(()=>{
+    if(role === 'student'){
+      fetchGrades(userId)
+    }
+  }
+    
+    ,[])
 
   const onSearch = () => {
     if (studentId) {
