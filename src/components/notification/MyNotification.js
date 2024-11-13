@@ -13,7 +13,7 @@ const MyNotification = () => {
   // 从API获取通知数据
   const fetchNotifications = async () => {
     try {
-      const notification_url = 'http://159.203.52.224/api/notifications';
+      const notification_url = 'http://128.199.224.162:8080/api/notifications';
       const response = await axios.get(notification_url, {
         headers: {
           authToken: jwt,

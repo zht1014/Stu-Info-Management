@@ -38,7 +38,7 @@ const ViewCourse = () => {
     const fetchData = async () => {
       try {
         // Fetch user details (username)
-        const userUrl = `http://159.203.52.224/api/user/${userId}`;
+        const userUrl = `http://128.199.224.162:8080/api/user/${userId}`;
         const { data: userData } = await axios.get(userUrl, {
           headers: { authToken: jwt },
           withCredentials: false,
@@ -46,14 +46,14 @@ const ViewCourse = () => {
         setUsername(userData.data.username); // Set username from response
 
         // Fetch courses data
-        const courseUrl = "http://159.203.52.224/api/course";
+        const courseUrl = "http://128.199.224.162:8080/api/course";
         const { data: courseData } = await axios.get(courseUrl, {
           headers: { authToken: jwt },
           withCredentials: false,
         });
 
         // Fetch enrollment data for the user
-        const enrollmentUrl = `http://159.203.52.224/api/enrollment/user/${userId}`;
+        const enrollmentUrl = `http://128.199.224.162:8080/api/enrollment/user/${userId}`;
         const { data: enrollmentData } = await axios.get(enrollmentUrl, {
           headers: { authToken: jwt },
           withCredentials: false,
@@ -91,7 +91,7 @@ const ViewCourse = () => {
         try {
           if (course.selected) {
             await axios.delete(
-              `http://159.203.52.224/api/enrollment/${course.enrollmentId}`,
+              `http://128.199.224.162:8080/api/enrollment/${course.enrollmentId}`,
               {
                 headers: { authToken: jwt },
                 withCredentials: false,
@@ -109,7 +109,7 @@ const ViewCourse = () => {
             });
           } else {
             const { data: enrollmentData } = await axios.post(
-              `http://159.203.52.224/api/enrollment`,
+              `http://128.199.224.162:8080/api/enrollment`,
               {
                 studentId: userId,
                 courseId: course.courseId,

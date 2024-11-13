@@ -15,7 +15,7 @@ const UserManagement = () => {
   const [form] = Form.useForm();
   const { jwt, userId } = useContext(AuthContext)
 
-  const apiUrl = 'http://159.203.52.224/api/user';
+  const apiUrl = 'http://128.199.224.162:8080/api/user';
 
   // Fetch users
   const fetchUsers = async () => {

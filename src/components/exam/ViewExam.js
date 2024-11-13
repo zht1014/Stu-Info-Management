@@ -11,7 +11,7 @@ const ViewExam = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const enrollmentUrl = `http://159.203.52.224/api/enrollment/user/${userId}`;
+                const enrollmentUrl = `http://128.199.224.162:8080/api/enrollment/user/${userId}`;
                 const { data: enrollmentData } = await axios.get(enrollmentUrl, {
                     headers: {
                         authToken: jwt,
@@ -19,7 +19,7 @@ const ViewExam = () => {
                     withCredentials: false,
                 });
 
-                const response = await axios.get("http://159.203.52.224/api/exam", {
+                const response = await axios.get("http://128.199.224.162:8080/api/exam", {
                     headers: {
                         authToken: jwt,
                     },

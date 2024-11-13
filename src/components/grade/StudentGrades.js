@@ -14,7 +14,7 @@ const StudentGrades = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://159.203.52.224/api/grade/student/${id}`,
+        `http://128.199.224.162:8080/api/grade/student/${id}`,
         {
           headers: {
             authToken: jwt, // 添加 JWT token

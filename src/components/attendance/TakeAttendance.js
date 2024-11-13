@@ -15,7 +15,7 @@ const TakeAttendance = ({ studentId }) => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-          const enrollmentUrl = `http://159.203.52.224/api/enrollment/user/${userId}`;
+          const enrollmentUrl = `http://128.199.224.162:8080/api/enrollment/user/${userId}`;
           const { data: enrollmentData } = await axios.get(enrollmentUrl, {
               headers: {
                   authToken: jwt,
@@ -23,7 +23,7 @@ const TakeAttendance = ({ studentId }) => {
               withCredentials: false,
           });
   
-          const courseUrl = "http://159.203.52.224/api/course";
+          const courseUrl = "http://128.199.224.162:8080/api/course";
           const courseResponse = await axios.get(courseUrl, {
               headers: {
                   authToken: jwt,
@@ -53,7 +53,7 @@ const TakeAttendance = ({ studentId }) => {
     setLoading(true);
     try {
       const course = values.courseId
-      const url = `http://159.203.52.224/api/v1/attendance/add/${studentId}/${course}`;
+      const url = `http://128.199.224.162:8080/api/v1/attendance/add/${studentId}/${course}`;
       console.log(values)
       const requestBody = {
         "studentId": studentId,        

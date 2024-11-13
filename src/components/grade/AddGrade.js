@@ -11,7 +11,7 @@ const AddGradeForm = () => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const url = "http://159.203.52.224/api/course"
+                const url = "http://128.199.224.162:8080/api/course"
                 const response = await axios.get(url, {
                     headers: {
                         authToken: jwt, // 添加 JWT token
@@ -46,7 +46,7 @@ const AddGradeForm = () => {
             console.log(gradeData)
 
 
-            const response = await axios.post("http://159.203.52.224/api/grade", gradeData, {
+            const response = await axios.post("http://128.199.224.162:8080/api/grade", gradeData, {
                 headers: {
                     authToken: jwt,
                 },

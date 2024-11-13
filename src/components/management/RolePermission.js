@@ -14,9 +14,9 @@ const RolePermission = () => {
   const [form] = Form.useForm();
   const { jwt } = useContext(AuthContext);
 
-  const apiRoleUrl = 'http://159.203.52.224/api/role';
-  const apiPermissionUrl = 'http://159.203.52.224/api/permissions';
-  const apiRolePermissionUrl = 'http://159.203.52.224/api/role-permissions';
+  const apiRoleUrl = 'http://128.199.224.162:8080/api/role';
+  const apiPermissionUrl = 'http://128.199.224.162:8080/api/permissions';
+  const apiRolePermissionUrl = 'http://128.199.224.162:8080/api/role-permissions';
 
   const fetchRolesAndPermissions = async () => {
     try {

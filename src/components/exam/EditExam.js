@@ -82,7 +82,7 @@ const EditExam = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://159.203.52.224/api/exam", {
+                const response = await axios.get("http://128.199.224.162:8080/api/exam", {
                     headers: {
                         authToken: jwt, // 添加 JWT token
                     },
@@ -145,7 +145,7 @@ const EditExam = () => {
                 };
                 console.log(updatedItem)
 
-                await axios.put(`http://159.203.52.224/api/exam/${item.examId}`, updatedItem, {
+                await axios.put(`http://128.199.224.162:8080/api/exam/${item.examId}`, updatedItem, {
                     headers: {
                         authToken: jwt,
                     },
@@ -163,7 +163,7 @@ const EditExam = () => {
 
     const deleteExam = async (examId) => {
         try {
-            await axios.delete(`http://159.203.52.224/api/exam/${examId}`, {
+            await axios.delete(`http://128.199.224.162:8080/api/exam/${examId}`, {
                 headers: {
                     authToken: jwt,
                 },

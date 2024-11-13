@@ -34,7 +34,7 @@ const ManageCourse = () => {
 
   const fetchCourseData = async () => {
     try {
-      const { data } = await axios.get("http://159.203.52.224/api/course", {
+      const { data } = await axios.get("http://128.199.224.162:8080/api/course", {
         headers: { authToken: jwt },
         withCredentials: false,
       });
@@ -62,7 +62,7 @@ const ManageCourse = () => {
   const handleSaveCourse = async () => {
     try {
       await axios.put(
-        `http://159.203.52.224/api/course/${editingCourseId}`,
+        `http://128.199.224.162:8080/api/course/${editingCourseId}`,
         {
           ...editingValues,
           startDate: editingValues.startDate.format("YYYY-MM-DD") + "T00:00:00",
@@ -99,7 +99,7 @@ const ManageCourse = () => {
 
   const handleDeleteCourse = async (courseId) => {
     try {
-      await axios.delete(`http://159.203.52.224/api/course/${courseId}`, {
+      await axios.delete(`http://128.199.224.162:8080/api/course/${courseId}`, {
         headers: { authToken: jwt },
       });
       setCourses((prevCourses) =>
@@ -123,7 +123,7 @@ const ManageCourse = () => {
   const handleDisapproveCourse = async (course) => {
     try {
       await axios.put(
-        `http://159.203.52.224/api/course/${course.courseId}`,
+        `http://128.199.224.162:8080/api/course/${course.courseId}`,
         {
           ...course,
           status: "INACTIVE",

@@ -25,11 +25,11 @@ const CourseReport = () => {
     const fetchData = async () => {
       try {
         const [userResponse, courseResponse] = await Promise.all([
-          axios.get(`http://159.203.52.224/api/user/${userId}`, {
+          axios.get(`http://128.199.224.162:8080/api/user/${userId}`, {
             headers: { authToken: jwt },
             withCredentials: false,
           }),
-          axios.get("http://159.203.52.224/api/course", {
+          axios.get("http://128.199.224.162:8080/api/course", {
             headers: { authToken: jwt },
             withCredentials: false,
           }),
@@ -61,7 +61,7 @@ const CourseReport = () => {
 
   const handleViewReport = async (courseId) => {
     try {
-      const reportUrl = `http://159.203.52.224/api/course/report/${courseId}`;
+      const reportUrl = `http://128.199.224.162:8080/api/course/report/${courseId}`;
       const { data: reportData } = await axios.get(reportUrl, {
         headers: { authToken: jwt },
         withCredentials: false,

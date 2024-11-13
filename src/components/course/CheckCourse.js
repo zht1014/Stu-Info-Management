@@ -17,7 +17,7 @@ const CheckCourse = () => {
   // 获取待审核课程（状态为 INACTIVE）
   const fetchPendingCourses = async () => {
     try {
-      const { data } = await axios.get("http://159.203.52.224/api/course", {
+      const { data } = await axios.get("http://128.199.224.162:8080/api/course", {
         headers: { authToken: jwt },
         withCredentials: false,
       });
@@ -39,7 +39,7 @@ const CheckCourse = () => {
       };
 
       await axios.put(
-        `http://159.203.52.224/api/course/${course.courseId}`,
+        `http://128.199.224.162:8080/api/course/${course.courseId}`,
         updatedCourse,
         { headers: { authToken: jwt } }
       );
