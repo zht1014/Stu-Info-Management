@@ -23,6 +23,8 @@ import MyNotification from "./notification/MyNotification";
 import ManageNotification from "./notification/ManageNotification";
 import AddGradeForm from "./grade/AddGrade";
 import UserManagement from "./management/RoleManager";
+import RolePermission from "./management/RolePermission";
+import AddRolePermission from "./management/AddRolePermission";
 const { Header, Content, Footer, Sider } = Layout;
 
 const NavContext = createContext();
@@ -128,7 +130,7 @@ const NavProvider = ({ children }) => {
               key: "course_report",
               label: "Course Report",
               component: () => <CourseReport />,
-            }
+            },
           ],
         },
         {
@@ -136,8 +138,8 @@ const NavProvider = ({ children }) => {
           icon: <TeamOutlined />,
           label: "exam",
           children: [
-            { key: "8", label: "Edit Exam", component: () => <EditExam/> },
-            { key: "9", label: "Add Exam", component: () => <AddExam/> },
+            { key: "8", label: "Edit Exam", component: () => <EditExam /> },
+            { key: "9", label: "Add Exam", component: () => <AddExam /> },
           ],
         },
         {
@@ -180,8 +182,18 @@ const NavProvider = ({ children }) => {
               label: "User Management",
               component: () => <UserManagement />,
             },
+            {
+              key: "role_permission",
+              label: "Role Permission",
+              component: () => <RolePermission />,
+            },
+            {
+              key: "add_role_permission",
+              label: "Add Role Permission",
+              component: () => <AddRolePermission />,
+            },
           ],
-        }
+        },
       ]);
     }
     if (role === "STUDENT") {
@@ -283,7 +295,7 @@ const NavProvider = ({ children }) => {
               key: "course_report",
               label: "Course Report",
               component: () => <CourseReport />,
-            }
+            },
           ],
         },
         {
@@ -291,8 +303,8 @@ const NavProvider = ({ children }) => {
           icon: <TeamOutlined />,
           label: "exam",
           children: [
-            { key: "8", label: "Edit Exam", component: () => <EditExam/> },
-            { key: "9", label: "Add Exam", component: () => <AddExam/> },
+            { key: "8", label: "Edit Exam", component: () => <EditExam /> },
+            { key: "9", label: "Add Exam", component: () => <AddExam /> },
           ],
         },
         {
@@ -300,9 +312,17 @@ const NavProvider = ({ children }) => {
           icon: <FileOutlined />,
           label: "Grades",
           children: [
-            { key: "12", label: "View Grade", component: () => <StudentGrades/> },
-            { key: "11", label: "Edit Grade", component: () => <EditGrades/> },
-            { key: "1e", label: "Add Grade", component: () => <AddGradeForm/> },
+            {
+              key: "12",
+              label: "View Grade",
+              component: () => <StudentGrades />,
+            },
+            { key: "11", label: "Edit Grade", component: () => <EditGrades /> },
+            {
+              key: "1e",
+              label: "Add Grade",
+              component: () => <AddGradeForm />,
+            },
           ],
         },
         {
@@ -314,7 +334,7 @@ const NavProvider = ({ children }) => {
               key: "my_notification",
               label: "My Notification",
               component: () => <MyNotification />,
-            }
+            },
           ],
         },
       ]);
@@ -422,7 +442,7 @@ const Home = () => {
 };
 
 const NavMenu = () => {
-  const {setSelectedNav, items } = useContext(NavContext);
+  const { setSelectedNav, items } = useContext(NavContext);
 
   const handleClick = ({ key }) => {
     setSelectedNav(key);
