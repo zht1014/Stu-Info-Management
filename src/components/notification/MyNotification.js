@@ -41,7 +41,7 @@ const MyNotification = () => {
 
   useEffect(() => {
     fetchNotifications();
-  }, [fetchNotifications]);
+  }, []);
 
   // 将通知标记为已读
   const markAsRead = (notificationId) => {

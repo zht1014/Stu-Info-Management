@@ -32,7 +32,7 @@ const ViewAttendance = ({ teacherId, studentId }) => {
 
   useEffect(() => {
     fetchAttendance();
-  }, [teacherId, studentId,fetchAttendance]);
+  }, [teacherId, studentId]);
 
   const deleteAttendance = async (record) => {
     try {

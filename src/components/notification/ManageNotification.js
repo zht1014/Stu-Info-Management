@@ -42,7 +42,7 @@ const ManageNotification = () => {
   // get notifications when the component is mounted
   useEffect(() => {
     fetchNotifications(pagination.current, pagination.pageSize);
-  }, [fetchNotifications, pagination]);
+  }, []);
 
   // add notification
   const addNotification = async () => {

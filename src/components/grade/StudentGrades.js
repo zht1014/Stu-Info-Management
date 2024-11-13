@@ -36,7 +36,7 @@ const StudentGrades = () => {
     if (role === "STUDENT") {
       fetchGrades(userId);
     }
-  }, [fetchGrades]);
+  }, [role,userId]);
 
   const onSearch = () => {
     if (studentId) {

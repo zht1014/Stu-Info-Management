@@ -12,7 +12,7 @@ const CheckCourse = () => {
 
   useEffect(() => {
     fetchPendingCourses();
-  }, [fetchPendingCourses]);
+  }, []);
 
   // 获取待审核课程（状态为 INACTIVE）
   const fetchPendingCourses = async () => {
