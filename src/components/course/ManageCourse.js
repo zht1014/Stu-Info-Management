@@ -30,7 +30,7 @@ const ManageCourse = () => {
 
   useEffect(() => {
     fetchCourseData();
-  }, [fetchCourseData]);
+  }, []);
 
   const fetchCourseData = async () => {
     try {
