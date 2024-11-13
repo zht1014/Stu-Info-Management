@@ -6,7 +6,6 @@ import {
   DatePicker,
   Button,
   Select,
-  Modal,
   notification,
   Popconfirm,
 } from "antd";
@@ -31,7 +30,7 @@ const ManageCourse = () => {
 
   useEffect(() => {
     fetchCourseData();
-  }, []);
+  }, [fetchCourseData]);
 
   const fetchCourseData = async () => {
     try {
@@ -62,7 +61,6 @@ const ManageCourse = () => {
 
   const handleSaveCourse = async () => {
     try {
-      const { updateDatetime, ...payload } = editingValues;
       await axios.put(
         `http://159.203.52.224/api/course/${editingCourseId}`,
         {

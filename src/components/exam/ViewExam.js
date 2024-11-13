@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../../AuthContext';
-import { Table, Form, Switch } from 'antd';
-import { render } from '@testing-library/react';
-import { Color } from 'antd/es/color-picker';
+import { Table} from 'antd';
 
 /* staff可以看到所有考试，student只能看到要参加的考试 */
 

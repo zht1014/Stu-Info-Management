@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { Form, Input, Button, DatePicker, InputNumber, message, Select } from "antd";
+import { Form, Input, Button, InputNumber, message, Select } from "antd";
 import axios from "axios";
 import { AuthContext } from "../../AuthContext"; // 假设 AuthContext 提供 JWT token
 
@@ -26,7 +26,7 @@ const AddGradeForm = () => {
         };
 
         fetchCourses();
-    }, []);
+    }, [jwt]);
 
     const onFinish = async (values) => {
         setLoading(true);

@@ -19,8 +19,6 @@ const CourseReport = () => {
   const [courses, setCourses] = useState([]);
   const [username, setUsername] = useState("");
   const [courseReportInfo, setCourseReportInfo] = useState(null); // 更改为courseReportInfo
-  const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     console.log("course reporting...");
 
@@ -44,7 +42,7 @@ const CourseReport = () => {
         const filteredCourses =
           role === "TEACHER"
             ? courseData.data.filter(
-                (course) => course.teacherName === userData.data.username
+                (course) => course.teacherName === username
               )
             : courseData.data;
 
@@ -62,7 +60,6 @@ const CourseReport = () => {
   }, [role, userId, jwt]);
 
   const handleViewReport = async (courseId) => {
-    setLoading(true);
     try {
       const reportUrl = `http://159.203.52.224/api/course/report/${courseId}`;
       const { data: reportData } = await axios.get(reportUrl, {
@@ -77,7 +74,6 @@ const CourseReport = () => {
         description: "Unable to load report.",
       });
     } finally {
-      setLoading(false);
     }
   };
 

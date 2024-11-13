@@ -8,17 +8,20 @@ const StudentGrades = () => {
   const [grades, setGrades] = useState([]);
   const [studentId, setStudentId] = useState("");
   const [loading, setLoading] = useState(false);
-  const { jwt,userId,role } = useContext(AuthContext)
+  const { jwt, userId, role } = useContext(AuthContext);
 
   const fetchGrades = async (id) => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://159.203.52.224/api/grade/student/${id}`, {
-        headers: {
-          authToken: jwt, // 添加 JWT token
-        },
-        withCredentials: true
-      });
+      const response = await axios.get(
+        `http://159.203.52.224/api/grade/student/${id}`,
+        {
+          headers: {
+            authToken: jwt, // 添加 JWT token
+          },
+          withCredentials: true,
+        }
+      );
       // const data = response.data.data ? [response.data.data] : [];
       // console.log(data)
       setGrades(response.data.data);
@@ -29,13 +32,11 @@ const StudentGrades = () => {
     }
   };
 
-  useEffect(()=>{
-    if(role === 'STUDENT'){
-      fetchGrades(userId)
+  useEffect(() => {
+    if (role === "STUDENT") {
+      fetchGrades(userId);
     }
-  }
-    
-    ,[])
+  }, [fetchGrades]);
 
   const onSearch = () => {
     if (studentId) {

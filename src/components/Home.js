@@ -1,18 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import {
-  AppstoreOutlined,
-  BarChartOutlined,
-  CloudOutlined,
-  ShopOutlined,
   TeamOutlined,
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
   PieChartOutlined,
   DesktopOutlined,
   FileOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, theme, Breadcrumb, Avatar, Popover, Button } from "antd";
+import { Layout, Menu, theme, Avatar, Popover, Button } from "antd";
 import { AuthContext } from "../AuthContext";
 import ViewExam from "./exam/ViewExam";
 import EditExam from "./exam/EditExam";
@@ -90,7 +83,7 @@ const NavProvider = ({ children }) => {
   ]);
 
   useEffect(() => {
-    if (role == "ADMIN") {
+    if (role === "ADMIN") {
       setItems([
         {
           key: "attendance",
@@ -178,7 +171,7 @@ const NavProvider = ({ children }) => {
         },
       ]);
     }
-    if (role == "STUDENT") {
+    if (role === "STUDENT") {
       setItems([
         {
           key: "attendance",
@@ -244,7 +237,7 @@ const NavProvider = ({ children }) => {
         },
       ]);
     }
-    if (role == "TEACHER") {
+    if (role === "TEACHER") {
       setItems([
         {
           key: "attendance",
@@ -416,7 +409,7 @@ const Home = () => {
 };
 
 const NavMenu = () => {
-  const { selectedNav, setSelectedNav, items } = useContext(NavContext);
+  const {setSelectedNav, items } = useContext(NavContext);
 
   const handleClick = ({ key }) => {
     setSelectedNav(key);

@@ -47,7 +47,7 @@ const TakeAttendance = ({ studentId }) => {
   };
 
     fetchCourses();
-  }, []);
+  }, [jwt, userId]);
 
   const onFinish = async (values) => {
     setLoading(true);

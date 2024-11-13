@@ -37,13 +37,13 @@ const departments = [
   "Physics",
 ];
 
-// 随机生成日期范围的函数
-const getRandomDateInRange = (start, end) => {
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-  const randomTime = Math.random() * (endDate - startDate) + startDate.getTime();
-  return new Date(randomTime).toISOString().split("T")[0];
-};
+// // 随机生成日期范围的函数
+// const getRandomDateInRange = (start, end) => {
+//   const startDate = new Date(start);
+//   const endDate = new Date(end);
+//   const randomTime = Math.random() * (endDate - startDate) + startDate.getTime();
+//   return new Date(randomTime).toISOString().split("T")[0];
+// };
 
 // 获取随机的课程开始日期
 const getRandomStartDate = () => {

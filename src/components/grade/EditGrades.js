@@ -1,6 +1,6 @@
 // src/EditGrades.js
 import React, { useState, useContext, useEffect } from "react";
-import { Table, message, Input, Button, InputNumber, Popconfirm } from "antd";
+import { Table, message, Button, InputNumber, Popconfirm } from "antd";
 import axios from "axios";
 import { AuthContext } from "../../AuthContext";
 

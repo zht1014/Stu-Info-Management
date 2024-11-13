@@ -8,7 +8,7 @@ const MyNotification = () => {
   const [readNotifications, setReadNotifications] = useState([]);
   const [selectedNotifications, setSelectedNotifications] = useState([]);
   const [hoveredNotificationId, setHoveredNotificationId] = useState(null);
-  const { role, jwt } = useContext(AuthContext);
+  const { jwt } = useContext(AuthContext);
 
   // 从API获取通知数据
   const fetchNotifications = async () => {
@@ -41,7 +41,7 @@ const MyNotification = () => {
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [fetchNotifications]);
 
   // 将通知标记为已读
   const markAsRead = (notificationId) => {

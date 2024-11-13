@@ -100,7 +100,7 @@ const EditExam = () => {
         };
 
         fetchData();
-    }, []);
+    }, [jwt]);
 
     const isEditing = (record) => record.key === editingKey;
 

@@ -1,5 +1,4 @@
 import Mock from 'mockjs';
-import { message } from "antd";
 
 export const examData = Mock.mock("/exam/list", "get", {
     code: 200,
