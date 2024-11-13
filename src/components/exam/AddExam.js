@@ -30,11 +30,11 @@ const AddExam = () => {
 
       console.log(requestBody)
 
-      await axios.post("http://localhost:8080/api/exam", requestBody, {
+      await axios.post("http://159.203.52.224/api/exam", requestBody, {
         headers: {
           authToken: jwt, // 添加 JWT token
         },
-        withCredentials: true,
+        withCredentials: false,
       });
 
       message.success("Exam added successfully");

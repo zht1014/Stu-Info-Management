@@ -24,11 +24,11 @@ const AddCourse = () => {
     };
 
     try {
-      await axios.post("http://localhost:8080/api/course", payload, {
+      await axios.post("http://159.203.52.224/api/course", payload, {
         headers: {
           authToken: jwt,
         },
-        withCredentials: true,
+        withCredentials: false,
       });
       notification.success({
         message: "Course Added",

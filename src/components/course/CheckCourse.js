@@ -17,9 +17,9 @@ const CheckCourse = () => {
   // 获取待审核课程（状态为 INACTIVE）
   const fetchPendingCourses = async () => {
     try {
-      const { data } = await axios.get("http://localhost:8080/api/course", {
+      const { data } = await axios.get("http://159.203.52.224/api/course", {
         headers: { authToken: jwt },
-        withCredentials: true,
+        withCredentials: false,
       });
       // 筛选出 status 为 "INACTIVE" 的课程
       const inactiveCourses = data.data.filter(course => course.status === "INACTIVE");
@@ -39,7 +39,7 @@ const CheckCourse = () => {
       };
 
       await axios.put(
-        `http://localhost:8080/api/course/${course.courseId}`,
+        `http://159.203.52.224/api/course/${course.courseId}`,
         updatedCourse,
         { headers: { authToken: jwt } }
       );

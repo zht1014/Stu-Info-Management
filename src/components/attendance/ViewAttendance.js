@@ -13,8 +13,8 @@ const ViewAttendance = ({ teacherId, studentId }) => {
     setLoading(true);
     try {
       const url = teacherId 
-        ? `http://localhost:8080/api/v1/attendance/teacher/${teacherId}` 
-        : `http://localhost:8080/api/v1/attendance/student/${studentId}`;
+        ? `http://159.203.52.224/api/v1/attendance/teacher/${teacherId}` 
+        : `http://159.203.52.224/api/v1/attendance/student/${studentId}`;
       const { data } = await axios.get(url,{
         headers: {
           authToken: jwt, // 添加 JWT token
@@ -37,7 +37,7 @@ const ViewAttendance = ({ teacherId, studentId }) => {
 
   const deleteAttendance = async (record) => {
     try {
-      await axios.delete(`http://localhost:8080/api/v1/attendance/delete/${record.studentId}/${record.courseId}`,{
+      await axios.delete(`http://159.203.52.224/api/v1/attendance/delete/${record.studentId}/${record.courseId}`,{
         headers: {
           authToken: jwt, // 添加 JWT token
         },

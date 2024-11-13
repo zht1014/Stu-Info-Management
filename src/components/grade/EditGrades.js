@@ -14,7 +14,7 @@ const EditGrades = () => {
   const fetchGrades = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:8080/api/grade`,{
+      const response = await axios.get(`http://159.203.52.224/api/grade`,{
         headers: {
           authToken: jwt, 
         },
@@ -44,7 +44,7 @@ const EditGrades = () => {
 
   const saveGrade = async (record) => {
     try {
-      await axios.put(`http://localhost:8080/api/grade/${record.gradeId}`, record,{
+      await axios.put(`http://159.203.52.224/api/grade/${record.gradeId}`, record,{
         headers: {
           authToken: jwt, // 添加 JWT token
         },
@@ -59,7 +59,7 @@ const EditGrades = () => {
 
   const deleteGrade = async (gradeId) => {
     try {
-      await axios.delete(`http://localhost:8080/api/grade/${gradeId}`,{
+      await axios.delete(`http://159.203.52.224/api/grade/${gradeId}`,{
         headers: {
           authToken: jwt, // 添加 JWT token
         },

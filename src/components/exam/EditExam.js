@@ -82,11 +82,11 @@ const EditExam = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://localhost:8080/api/exam", {
+                const response = await axios.get("http://159.203.52.224/api/exam", {
                     headers: {
                         authToken: jwt, // 添加 JWT token
                     },
-                    withCredentials: true,
+                    withCredentials: false,
                 });
                 const dataWithKeys = response.data.data.map((item, index) => ({
                     ...item,
@@ -145,11 +145,11 @@ const EditExam = () => {
                 };
                 console.log(updatedItem)
 
-                await axios.put(`http://localhost:8080/api/exam/${item.examId}`, updatedItem, {
+                await axios.put(`http://159.203.52.224/api/exam/${item.examId}`, updatedItem, {
                     headers: {
                         authToken: jwt,
                     },
-                    withCredentials: true,
+                    withCredentials: false,
                 });
 
                 newData.splice(index, 1, updatedItem);
@@ -163,11 +163,11 @@ const EditExam = () => {
 
     const deleteExam = async (examId) => {
         try {
-            await axios.delete(`http://localhost:8080/api/exam/${examId}`, {
+            await axios.delete(`http://159.203.52.224/api/exam/${examId}`, {
                 headers: {
                     authToken: jwt,
                 },
-                withCredentials: true,
+                withCredentials: false,
             });
             setData(data.filter((item) => item.examId !== examId));
         } catch (error) {

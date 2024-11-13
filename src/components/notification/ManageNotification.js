@@ -18,7 +18,7 @@ const ManageNotification = () => {
   const fetchNotifications = async (page = 1, pageSize = 10) => {
     try {
       const response = await axios.get(
-        "http://localhost:8080/api/notifications",
+        "http://159.203.52.224/api/notifications",
         {
           params: { page, pageSize },
           headers: {
@@ -53,7 +53,7 @@ const ManageNotification = () => {
     }
     try {
       await axios.post(
-        "http://localhost:8080/api/notifications",
+        "http://159.203.52.224/api/notifications",
         {
           userId: userId,
           message: newMessage,
@@ -83,7 +83,7 @@ const ManageNotification = () => {
       onOk: async () => {
         try {
           await axios.delete(
-            `http://localhost:8080/api/notifications/${notificationId}`,
+            `http://159.203.52.224/api/notifications/${notificationId}`,
             {
               headers: { authToken: jwt },
             }
@@ -107,7 +107,7 @@ const ManageNotification = () => {
     if (newMessage && newMessage !== currentMessage) {
       axios
         .put(
-          `http://localhost:8080/api/notifications/${notificationId}`,
+          `http://159.203.52.224/api/notifications/${notificationId}`,
           {
             userId: userId,
             message: newMessage,
