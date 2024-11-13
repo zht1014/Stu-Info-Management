@@ -22,6 +22,7 @@ import AddExam from "./exam/AddExam";
 import MyNotification from "./notification/MyNotification";
 import ManageNotification from "./notification/ManageNotification";
 import AddGradeForm from "./grade/AddGrade";
+import UserManagement from "./management/RoleManager";
 const { Header, Content, Footer, Sider } = Layout;
 
 const NavContext = createContext();
@@ -169,6 +170,18 @@ const NavProvider = ({ children }) => {
             },
           ],
         },
+        {
+          key: "management",
+          icon: <FileOutlined />,
+          label: "Management",
+          children: [
+            {
+              key: "user_management",
+              label: "User Management",
+              component: () => <UserManagement />,
+            },
+          ],
+        }
       ]);
     }
     if (role === "STUDENT") {
