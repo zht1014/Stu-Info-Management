@@ -19,9 +19,9 @@ const StudentGrades = () => {
         },
         withCredentials: true
       });
-      const data = response.data.data ? [response.data.data] : [];
-      console.log(data)
-      setGrades(data);
+      // const data = response.data.data ? [response.data.data] : [];
+      // console.log(data)
+      setGrades(response.data.data);
     } catch (error) {
       message.error("Failed to load grades.");
     } finally {
