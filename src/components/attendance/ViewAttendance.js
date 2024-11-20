@@ -19,10 +19,24 @@ const ViewAttendance = ({ teacherId, studentId }) => {
         headers: {
           authToken: jwt, // 添加 JWT token
         },
-        withCredentials: true
+        //withCredentials: true
       });
-      setAttendances(data);
-      console.log(data)
+      const dataWithUsername = await Promise.all(
+        data.map(async (attendance) => {
+          // Use the `userId` from grade data to fetch the username
+          const userResponse = await axios.get(`http://128.199.224.162:8080/api/user/${attendance.studentId}`, {
+            headers: {
+              authToken: jwt, // Add JWT token
+            },
+          });
+
+          return {
+            ...attendance,
+            username: userResponse.data.data.username || "Unknown",
+          };
+        })
+      );
+      setAttendances(dataWithUsername);
     } catch (error) {
       message.error("Failed to fetch attendance records.");
     } finally {
@@ -31,6 +45,7 @@ const ViewAttendance = ({ teacherId, studentId }) => {
   };
 
   useEffect(() => {
+
     fetchAttendance();
   }, [teacherId, studentId]);
 
@@ -40,7 +55,7 @@ const ViewAttendance = ({ teacherId, studentId }) => {
         headers: {
           authToken: jwt, // 添加 JWT token
         },
-        withCredentials: true
+        //withCredentials: true
       });
       message.success("Attendance record deleted successfully");
       fetchAttendance();
@@ -50,6 +65,11 @@ const ViewAttendance = ({ teacherId, studentId }) => {
   };
 
   const columns = [
+    { 
+      title: "Username", 
+      dataIndex: "username", 
+      key: "username" 
+    },
     {
       title: "Student ID",
       dataIndex: "studentId",

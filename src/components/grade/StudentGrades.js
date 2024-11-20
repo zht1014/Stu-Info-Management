@@ -8,23 +8,36 @@ const StudentGrades = () => {
   const [grades, setGrades] = useState([]);
   const [studentId, setStudentId] = useState("");
   const [loading, setLoading] = useState(false);
-  const { jwt, userId, role } = useContext(AuthContext);
+  const { jwt,userId,role } = useContext(AuthContext)
 
   const fetchGrades = async (id) => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `http://128.199.224.162:8080/api/grade/student/${id}`,
-        {
-          headers: {
-            authToken: jwt, // 添加 JWT token
-          },
-          withCredentials: true,
-        }
+      const response = await axios.get(`http://128.199.224.162:8080/api/grade/student/${id}`, {
+        headers: {
+          authToken: jwt, // 添加 JWT token
+        },
+        //withCredentials: true
+      });
+      /* const data = response.data.data ? [response.data.data] : [];
+      console.log(data) */
+      const dataWithUsername = await Promise.all(
+        response.data.data.map(async (grade) => {
+          // Use the `userId` from grade data to fetch the username
+          const userResponse = await axios.get(`http://128.199.224.162:8080/api/user/${grade.studentId}`, {
+            headers: {
+              authToken: jwt, // Add JWT token
+            },
+          });
+
+          return {
+            ...grade,
+            username: userResponse.data.data.username || "Unknown",
+          };
+        })
       );
-      // const data = response.data.data ? [response.data.data] : [];
-      // console.log(data)
-      setGrades(response.data.data);
+      console.log(dataWithUsername)
+      setGrades(dataWithUsername);
     } catch (error) {
       message.error("Failed to load grades.");
     } finally {
@@ -32,11 +45,13 @@ const StudentGrades = () => {
     }
   };
 
-  useEffect(() => {
-    if (role === "STUDENT") {
-      fetchGrades(userId);
+  useEffect(()=>{
+    if(role === 'STUDENT'){
+      fetchGrades(userId)
     }
-  }, [role,userId]);
+  }
+    
+    ,[])
 
   const onSearch = () => {
     if (studentId) {
@@ -47,6 +62,7 @@ const StudentGrades = () => {
   };
 
   const columns = [
+    { title: "Username", dataIndex: "username", key: "username" },
     { title: "Grade ID", dataIndex: "gradeId", key: "gradeId" },
     { title: "Course ID", dataIndex: "courseId", key: "courseId" },
     { title: "Grade", dataIndex: "grade", key: "grade" },
